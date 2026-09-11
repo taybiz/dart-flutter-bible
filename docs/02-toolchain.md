@@ -4,7 +4,7 @@
 |---|---|
 | Dart SDK | `sdk: '>=3.10.0 <4.0.0'` — floor 3.10, never 4.x |
 | Package manager | pub (Dart 3.5+ **pub workspaces**) |
-| Monorepo | **melos 7** — configured entirely in root `pubspec.yaml` |
+| Monorepo | **melos 8** — configured entirely in root `pubspec.yaml` |
 | Formatter | `dart format` only |
 | Analyzer | `dart analyze` — **zero diagnostics of any severity** (errors, warnings, infos) before any commit; gate = `dart analyze --fatal-infos --fatal-warnings` (§2 "Analyzer: zero tolerance") |
 | Docs | Terse `///` on declarations and their public members (1–2 lines, what+why) — **never as a file header** — dartdoc/pub.dev-ready |
@@ -12,7 +12,7 @@
 
 ### Melos: the modern way (and the bad smell)
 
-**A `melos.yaml` file is a bad smell.** Modern melos (6.x, and definitively 7.x) has no `melos.yaml` at all. It uses native pub workspaces and puts all config in the **root `pubspec.yaml`** under a `melos:` key. If you see a repo with a `melos.yaml`, it is running a legacy setup and should be migrated.
+**A `melos.yaml` file is a bad smell.** Modern melos (6.x, and definitively 7.x and later) has no `melos.yaml` at all. It uses native pub workspaces and puts all config in the **root `pubspec.yaml`** under a `melos:` key. If you see a repo with a `melos.yaml`, it is running a legacy setup and should be migrated.
 
 Root `pubspec.yaml`:
 
@@ -28,12 +28,19 @@ workspace:
   - packages/thing_datasource_sembast
   - apps/thing_flutter
 dev_dependencies:
-  melos: ^7.0.0
+  melos: ^8.1.0
 
 melos:
   scripts:
+    # Bare string = one command, once, in the workspace root.
     analyze: dart analyze --fatal-infos --fatal-warnings
-    test: dart test
+    # `exec` = one run per package. Since melos 8 the command is `exec.command`.
+    test:
+      exec:
+        command: dart test
+        concurrency: 1
+      packageFilters:
+        dirExists: test
 ```
 
 Each package `pubspec.yaml`:
@@ -49,6 +56,8 @@ Notes:
 - The `workspace:` list is explicit — globs are not supported yet; list every package.
 - `melos bootstrap` links local packages without `pubspec_overrides.yaml` (workspaces replaced that mechanism).
 - Scripts live in the `melos:` key; run with `melos run <name>`.
+- **Script schema — the melos 8.0.0 break.** A script runs either *once in the workspace root* (`run: <command>`, or the bare-string shorthand) or *once per package* (`exec:`). Since 8.0.0 the per-package command must be given as **`exec.command:`**; the old split — `run:` for the command plus `exec:` for its options — is gone, and a script that sets both `run` and `exec` is a config error. Fed to a melos 7 parser, an `exec.command` script fails with `MissingScriptCommandException: … You must specify a script to run`.
+- **Pin `^8.1.0`, not `^8.0.0`.** 8.0.0 shipped with `melos analyze` broken; it was restored in 8.1.0. Any floor below 8.1.0 can hand you a workspace whose analyze gate does not run at all.
 
 ### Analyzer: zero tolerance
 
