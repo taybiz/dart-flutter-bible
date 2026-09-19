@@ -18,6 +18,7 @@
 - Failures: sealed hierarchies PER LAYER (domain / datasource). Datasource failures mapped upward at the repository. switch over failures is exhaustive.
 - tryCatch ONLY at adapter boundaries, converting third-party exceptions -> Left. Adapter boundary = a LINE not a zone: only `TaskEither.tryCatch`/`Either.tryCatch` wrapping the third-party call itself; hand-rolled try/catch inside adapters = VIOLATION. No throw/try/catch in domain or usecases.
 - AT-LEAST-TWO REPOSITORY ADAPTER RULE: every repository contract gets >=2 repository adapters + a shared contract suite run against ALL of them.
+- ERROR STYLE IS DECLARED, LOUDLY: every package says whether consumers get FP-style tuples (Either/TaskEither) or plain exceptions — in the barrel doc comment, the README, and (if it deviates from the Future<Either> default) its AGENTS.md. Silence is the violation, never the choice.
 - WIDGETS -> USECASES ONLY: no widget imports repository, datasource, or entity factory; providers wrap use cases.
 - melos.yaml = BAD SMELL (deleted in melos 7.0.0). Modern melos 8 + native pub workspaces.
 - SDK constraint: '>=3.10.0 <4.0.0' in every pubspec.
@@ -66,9 +67,10 @@
 1 read compact (or full) bible; 2 root pubspec with workspace + melos keys (no melos.yaml); 3 packages: domain / usecases / 2 datasource adapters / app; 4 resolution: workspace + melos bootstrap; 5 contracts first (entities, failures, I*Repository, datasource interfaces); 6 at least two repository adapters + contract suite from day one; 7 lints incl. public_member_api_docs + todo:error; dart analyze --fatal-infos --fatal-warnings clean (ZERO diagnostics of any severity); 8 first usecase (documented, business-param call, named params) + both-sides test; 9 CI runs analyze + test.
 
 ## REVIEW (checklist)
-- Inward dependencies? Throw/try/catch outside UI ring? Entities immutable + equatable? >=2 repository adapters + contract suite? Failure layers mapped, no leakage? drift the only ORM? Unapproved builders? shouldly only, GWT names, both Either sides? No melos.yaml? analyze (fatal flags) + test green, ZERO diagnostics any severity? No TODO/FIXME (roadmap doc)? Ignores per-line only? Public API documented (<=2 lines, use cases included)? Params business-shaped, no cargo? Named params (except ref/message)? One barrel per package, no src/ imports? D.R.Y. (no restated rules in READMEs/AGENTS/comments)?
+- Inward dependencies? Throw/try/catch outside UI ring? Entities immutable + equatable? >=2 repository adapters + contract suite? Failure layers mapped, no leakage? Error style declared (tuples vs exceptions)? drift the only ORM? Unapproved builders? shouldly only, GWT names, both Either sides? No melos.yaml? analyze (fatal flags) + test green, ZERO diagnostics any severity? No TODO/FIXME (roadmap doc)? Ignores per-line only? Public API documented (<=2 lines, use cases included)? Params business-shaped, no cargo? Named params (except ref/message)? One barrel per package, no src/ imports? D.R.Y. (no restated rules in READMEs/AGENTS/comments)?
 
 ## DECISIONS (settled; §11 = human change record, doctrine wins)
+- Error style: declared per package (barrel + README + AGENTS.md on deviation); FP-style tuples are the default, plain exceptions only at the UI ring.
 - State: Riverpod (plain providers). DI: manual constructor injection. Nav: go_router. JSON codegen: banned for now. License: MIT. Wiki: auto-synced by wiki-sync GitHub Action on every push to main.
 - Docs: terse `///` on declarations and their members (1-2 lines, what+why), **never as a file header** (file-level `///` requires a `library;` — barrels only); public_member_api_docs ON; use cases documented. Params: named except single positional ref/message; usecase call() = discrete business params, never cargo objects. Barrels: one hand-written per package (lib/<pkg>.dart), never import src/ across packages. Flutter follows Flutter conventions.
 
