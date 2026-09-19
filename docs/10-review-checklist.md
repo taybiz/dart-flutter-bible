@@ -5,6 +5,7 @@
 - [ ] Entities immutable + equatable? Operations return new instances?
 - [ ] Every repository contract has **≥2 repository adapters** and runs the contract suite against all of them?
 - [ ] Failures typed, layer-mapped (datasource failure ≠ domain failure leaked)?
+- [ ] Error style **declared** — the barrel doc comment, the README, and (on any deviation from the `Future<Either<...>>` default) `AGENTS.md` all state whether consumers get FP-style tuples or plain exceptions?
 - [ ] sqlite3 done with drift? Any other ORM/raw sqlite3 in the tree?
 - [ ] Any unapproved builder/codegen (freezed, json_serializable, riverpod_generator)? If yes — why?
 - [ ] Tests: shouldly only (no `expect()` mixing), Given/When/Then names, both Either sides covered, mocks only at the use-case seam with mocktail?

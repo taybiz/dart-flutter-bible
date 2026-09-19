@@ -102,6 +102,43 @@ TaskEither is the **internal** composition type. The **public seam is `Future<Ei
 - **Consumers (UI, CLI, other use cases) never build or run TaskEither chains.** They await a `Future<Either<...>>` and `fold` it. This is the termination the user wants: fpdart's laziness dies in the core, not in the widget tree. (Consumers will still import fpdart to `fold`/`getOrElse` an `Either` — that is expected and fine; what they never touch is chain-building, laziness, and `.run()`.)
 - **Why:** laziness leaks out of the core, it becomes a UI problem (forgetting `.run()`, mutating captured lists inside lazy callbacks, debugging chains that "did nothing"). Keep `.run()` inside the layer that built the chain; the boundary is the type change `TaskEither → Future<Either>`.
 
+### Declare the error style, loudly
+
+Two error styles live in our estate and a consumer must never have to discover
+which one they are holding: **FP-style tuples** (`Either` / `TaskEither` — failure
+is a value) or **plain exceptions** (failure is thrown). Every package declares
+which one it presents, in the same words, in all of these:
+
+1. **the package barrel's doc comment** (`lib/<pkg>.dart`) — the IDE tooltip and
+   the pub.dev API page;
+2. **the package README**, near the top, so it is read before the first call is
+   written;
+3. **the repo's `AGENTS.md`**, whenever the package deviates from the default
+   below.
+
+The declaration names the style and the failure type in consumer terms:
+
+> This package presents **FP-style tuples**: every call returns
+> `TaskEither<Failure, T>`; `.run()` it for `Future<Either<Failure, T>>`.
+
+> This package presents **plain exceptions**: it throws `FooException`; catch at
+> your boundary.
+
+- **Default:** core packages present `Future<Either<Failure, T>>` and terminate
+  their own chains (above). A package that hands the consumer the unrun
+  `TaskEither` instead is **not** a violation *provided it declares it* — seeing a
+  tuple is how a consumer knows to `.run()` it. The violation is silence, never
+  the choice.
+- **Exceptions are never the default in the bulls-eye.** A package that presents
+  them says where they are raised and caught (see *The exception rule* below) and
+  keeps them out of domain and use cases.
+- The declaration describes the **seam**, not the internals: a package with pure
+  `TaskEither` internals may present `Future<Either<...>>`, and a package that
+  presents tuples may still throw inside a widget. Internal composition never
+  changes what the caller receives.
+- Omitting the declaration costs a consumer exactly two bugs: a `TaskEither` that
+  never ran, and an exception thrown across a seam they believed was a value.
+
 ### Equality: equatable
 
 Every entity and value object `extends Equatable` with `List<Object?> get props => [...]`. This gives value semantics for `==` and `hashCode`, which fpdart pattern matching, testing, and drift row mapping all rely on. Hand-written, no codegen.
