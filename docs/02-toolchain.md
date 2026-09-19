@@ -28,7 +28,7 @@ workspace:
   - packages/thing_datasource_sembast
   - apps/thing_flutter
 dev_dependencies:
-  melos: ^8.1.0
+  melos: ^8.8.0
 
 melos:
   scripts:
@@ -57,7 +57,7 @@ Notes:
 - `melos bootstrap` links local packages without `pubspec_overrides.yaml` (workspaces replaced that mechanism).
 - Scripts live in the `melos:` key; run with `melos run <name>`.
 - **Script schema — the melos 8.0.0 break.** A script runs either *once in the workspace root* (`run: <command>`, or the bare-string shorthand) or *once per package* (`exec:`). Since 8.0.0 the per-package command must be given as **`exec.command:`**; the old split — `run:` for the command plus `exec:` for its options — is gone, and a script that sets both `run` and `exec` is a config error. Fed to a melos 7 parser, an `exec.command` script fails with `MissingScriptCommandException: … You must specify a script to run`.
-- **Pin `^8.1.0`, not `^8.0.0`.** 8.0.0 has no `analyze` command at all — `melos analyze` exits non-zero printing the usage list (verified locally against 8.0.0). With an `analyze` script defined it falls through to that script instead, so the command *looks* fine on a repo that spells the gate out by name and fails on one that does not. Restored in 8.1.0; any floor below it is a workspace whose analyze gate depends on where you typed it.
+- **Pin `^8.8.0`.** The floor has to clear three fixed points in the 8.x line: 8.0.0 has no `analyze` command at all — `melos analyze` exits non-zero printing the usage list (verified locally against 8.0.0), and with an `analyze` script defined it silently falls through to that script, so the command *looks* fine on a repo that spells the gate out by name and fails on one that does not; 8.1.0 restores the command; 8.2.0 is where it stops being lenient by default. Anything below the floor is a workspace whose analyze gate depends on where you typed it. Pin the current floor and let the caret carry you forward — the next break lands in a minor release (that is what 8.0.0 did), so it will be caught by anyone who re-runs the gate, not by the constraint.
 - **`melos analyze` got stricter in 8.2.0.** From 8.2.0 the built-in command defaults to `--fatal-infos` for dart and flutter packages — the gate this section demands — so it finally agrees with the `analyze` script above. Calling the script (as CI does) rather than the bare command is what keeps that agreement explicit on every 8.x.
 
 ### Analyzer: zero tolerance

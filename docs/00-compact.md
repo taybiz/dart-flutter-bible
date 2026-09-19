@@ -29,7 +29,7 @@
 - D.R.Y.: single source of truth — doctrine lives HERE; project READMEs/AGENTS.md reference rules, never restate them (a second copy is a second truth). Repo AGENTS.md = that repo's deviations + local wiring only; READMEs orient, carry no rules/architecture.
 
 ## STACK (pinned)
-- fpdart ^1.2.0 · equatable ^2.x · shouldly (assertions, "should be" idiom) · mocktail (mocks, usecase seam only) · drift + drift_dev + build_runner (sqlite3 ORM; SANCTIONED codegen) · sembast (pure-Dart file store) · melos ^8.1.0 · flutter_riverpod (plain providers) · go_router (nav).
+- fpdart ^1.2.0 · equatable ^2.x · shouldly (assertions, "should be" idiom) · mocktail (mocks, usecase seam only) · drift + drift_dev + build_runner (sqlite3 ORM; SANCTIONED codegen) · sembast (pure-Dart file store) · melos ^8.8.0 · flutter_riverpod (plain providers) · go_router (nav).
 
 ## BANNED
 - freezed, json_serializable, riverpod_generator, retrofit, get_it/injectable, raw sqlite3 without drift.
@@ -37,7 +37,7 @@
 
 ## WORKSPACE / MELOS
 - Root pubspec: `workspace:` lists packages; `melos:` key holds scripts. Every package sets `resolution: workspace`.
-- Scripts: bare string / `run:` = the command once in the workspace root; `exec:` = once per package, and since melos 8 the command MUST be `exec.command:` (`run` + `exec` together = config error; melos 7 rejects the `exec.command` shape with `MissingScriptCommandException`). Pin melos ^8.1.0 — 8.0.0 shipped with `melos analyze` broken, restored in 8.1.0; 8.2.0+ defaults `melos analyze` to --fatal-infos.
+- Scripts: bare string / `run:` = the command once in the workspace root; `exec:` = once per package, and since melos 8 the command MUST be `exec.command:` (`run` + `exec` together = config error; melos 7 rejects the `exec.command` shape with `MissingScriptCommandException`). Pin melos ^8.8.0 — 8.0.0 has NO `analyze` command (falls through to a same-named script if you have one), restored in 8.1.0; 8.2.0+ defaults `melos analyze` to --fatal-infos.
 - `melos bootstrap`, then `melos run <script>`. Workspaces are per-repo; melos does NOT span repos.
 
 ## TOPOLOGY
