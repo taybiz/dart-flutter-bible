@@ -11,7 +11,7 @@
 | [00 — Compact](docs/00-compact.md) | Bot-only ingest blob — **do not hand-edit**; regenerate from the human docs |
 | [01 — Architecture](docs/01-architecture.md) | The bulls-eye, the four laws, the at-least-two-repository-adapter rule |
 | [02 — Toolchain & Melos](docs/02-toolchain.md) | SDK range, melos 8 + pub workspaces (`melos.yaml` is a bad smell) |
-| [03 — Repository Topology](docs/03-topology.md) | One-workspace repo vs core-repo + UI-repo; the application layer as facade |
+| [03 — Repository Topology](docs/03-topology.md) | One-workspace repo vs core-repo + UI-repo vs single-package repo (still melos); the application layer as facade |
 | [04 — Functional Core](docs/04-functional-core.md) | fpdart, typed failures, equatable, no exceptions inside the bulls-eye |
 | [05 — Persistence](docs/05-persistence.md) | Drift for sqlite3, sembast for file stores, contract suites, in-memory testing |
 | [06 — Testing](docs/06-testing.md) | shouldly "should be" idiom, Given/When/Then, mocktail, layer matrix |

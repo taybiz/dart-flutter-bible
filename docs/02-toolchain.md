@@ -12,7 +12,7 @@
 
 ### Melos: the modern way (and the bad smell)
 
-**A `melos.yaml` file is a bad smell.** `melos.yaml` was deleted in **melos 7.0.0** in favor of the root `pubspec.yaml`; a repo still carrying one is on 6.x or earlier. Modern melos (7.x, and definitively 8.x) has no `melos.yaml` at all — it uses native pub workspaces and puts all config in the **root `pubspec.yaml`** under a `melos:` key. If you see a repo with a `melos.yaml`, it is running a legacy setup and should be migrated.
+**A `melos.yaml` file is a bad smell.** `melos.yaml` was deleted in **melos 7.0.0** in favor of the root `pubspec.yaml`; a repo still carrying one is on 6.x or earlier. Modern melos (7.x, and definitively 8.x) has no `melos.yaml` at all — it uses native pub workspaces and puts all config in the **root `pubspec.yaml`** under a `melos:` key. If you see a repo with a `melos.yaml`, it is running a legacy setup and should be migrated. A repo holding a single package is the same shape with the package *as* the workspace root — see §3 Topology C.
 
 Root `pubspec.yaml`:
 

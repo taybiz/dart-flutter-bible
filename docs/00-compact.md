@@ -39,9 +39,10 @@
 - Root pubspec: `workspace:` lists packages; `melos:` key holds scripts. Every package sets `resolution: workspace`.
 - Scripts: bare string / `run:` = the command once in the workspace root; `exec:` = once per package, and since melos 8 the command MUST be `exec.command:` (`run` + `exec` together = config error; melos 7 rejects the `exec.command` shape with `MissingScriptCommandException`). Pin melos ^8.8.0 — 8.0.0 has NO `analyze` command (falls through to a same-named script if you have one), restored in 8.1.0; 8.2.0+ defaults `melos analyze` to --fatal-infos.
 - `melos bootstrap`, then `melos run <script>`. Workspaces are per-repo; melos does NOT span repos.
+- A single-package repo is a workspace of one: package = workspace root, `melos: useRootAsPackage: true`, no `workspace:`/`resolution:` anywhere (§3 Topology C). `melos bootstrap` writes `melos_<package>.iml` into the root — keep `*.iml` gitignored or it ships in the published archive. CI calls `dart run melos run <script>`, never the raw command.
 
 ## TOPOLOGY
-- A) One workspace repo — small / single-delivery (CLI only). B) Core repo (domain + usecases + datasource adapters + CLI, pure Dart, NO Flutter) + separate UI repo (Flutter; git dep on core + dependency_overrides for dev; platform bits like path_provider resolved in UI composition root).
+- A) One workspace repo — small / single-delivery (CLI only). B) Core repo (domain + usecases + datasource adapters + CLI, pure Dart, NO Flutter) + separate UI repo (Flutter; git dep on core + dependency_overrides for dev; platform bits like path_provider resolved in UI composition root). C) Single-package repo — STILL a melos workspace: the package is the workspace root (`melos: useRootAsPackage: true`), scripts in its own pubspec, no melos.yaml; that buys `melos run` plus the `melos version`/`melos publish` release flow.
 - The application layer (use cases) IS the facade — one seam served by CLI and UI alike. Optional thin facade class = wiring convenience only, never a logic layer.
 
 ## PERSISTENCE
