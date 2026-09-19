@@ -19,7 +19,7 @@
 - tryCatch ONLY at adapter boundaries, converting third-party exceptions -> Left. Adapter boundary = a LINE not a zone: only `TaskEither.tryCatch`/`Either.tryCatch` wrapping the third-party call itself; hand-rolled try/catch inside adapters = VIOLATION. No throw/try/catch in domain or usecases.
 - AT-LEAST-TWO REPOSITORY ADAPTER RULE: every repository contract gets >=2 repository adapters + a shared contract suite run against ALL of them.
 - WIDGETS -> USECASES ONLY: no widget imports repository, datasource, or entity factory; providers wrap use cases.
-- melos.yaml = BAD SMELL. Modern melos 7 + native pub workspaces.
+- melos.yaml = BAD SMELL (deleted in melos 7.0.0). Modern melos 8 + native pub workspaces.
 - SDK constraint: '>=3.10.0 <4.0.0' in every pubspec.
 - One class per file; ONE hand-written barrel per package (`lib/<pkg>.dart` re-exports `lib/src/`; never import `src/` across packages). dart format / dart analyze / dart test only. Dart-first editing: no Python/sed rewriting .dart files.
 - TERSE DOCS: `///` on declarations and their public members (1-2 lines, what+why, never how) — **never as a file header** (file-level `///` requires a `library;` — barrels only) — dartdoc/pub.dev-ready; `public_member_api_docs` lint ON. Use cases MUST be documented.
@@ -29,7 +29,7 @@
 - D.R.Y.: single source of truth — doctrine lives HERE; project READMEs/AGENTS.md reference rules, never restate them (a second copy is a second truth). Repo AGENTS.md = that repo's deviations + local wiring only; READMEs orient, carry no rules/architecture.
 
 ## STACK (pinned)
-- fpdart ^1.2.0 · equatable ^2.x · shouldly (assertions, "should be" idiom) · mocktail (mocks, usecase seam only) · drift + drift_dev + build_runner (sqlite3 ORM; SANCTIONED codegen) · sembast (pure-Dart file store) · melos ^7.0.0 · flutter_riverpod (plain providers) · go_router (nav).
+- fpdart ^1.2.0 · equatable ^2.x · shouldly (assertions, "should be" idiom) · mocktail (mocks, usecase seam only) · drift + drift_dev + build_runner (sqlite3 ORM; SANCTIONED codegen) · sembast (pure-Dart file store) · melos ^8.1.0 · flutter_riverpod (plain providers) · go_router (nav).
 
 ## BANNED
 - freezed, json_serializable, riverpod_generator, retrofit, get_it/injectable, raw sqlite3 without drift.
@@ -37,6 +37,7 @@
 
 ## WORKSPACE / MELOS
 - Root pubspec: `workspace:` lists packages; `melos:` key holds scripts. Every package sets `resolution: workspace`.
+- Scripts: bare string / `run:` = the command once in the workspace root; `exec:` = once per package, and since melos 8 the command MUST be `exec.command:` (`run` + `exec` together = config error; melos 7 rejects the `exec.command` shape with `MissingScriptCommandException`). Pin melos ^8.1.0 — 8.0.0 shipped with `melos analyze` broken, restored in 8.1.0; 8.2.0+ defaults `melos analyze` to --fatal-infos.
 - `melos bootstrap`, then `melos run <script>`. Workspaces are per-repo; melos does NOT span repos.
 
 ## TOPOLOGY
