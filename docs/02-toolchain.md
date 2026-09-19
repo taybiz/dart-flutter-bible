@@ -12,7 +12,7 @@
 
 ### Melos: the modern way (and the bad smell)
 
-**A `melos.yaml` file is a bad smell.** Modern melos (6.x, and definitively 7.x and later) has no `melos.yaml` at all. It uses native pub workspaces and puts all config in the **root `pubspec.yaml`** under a `melos:` key. If you see a repo with a `melos.yaml`, it is running a legacy setup and should be migrated.
+**A `melos.yaml` file is a bad smell.** `melos.yaml` was deleted in **melos 7.0.0** in favor of the root `pubspec.yaml`; a repo still carrying one is on 6.x or earlier. Modern melos (7.x, and definitively 8.x) has no `melos.yaml` at all — it uses native pub workspaces and puts all config in the **root `pubspec.yaml`** under a `melos:` key. If you see a repo with a `melos.yaml`, it is running a legacy setup and should be migrated.
 
 Root `pubspec.yaml`:
 
@@ -57,7 +57,8 @@ Notes:
 - `melos bootstrap` links local packages without `pubspec_overrides.yaml` (workspaces replaced that mechanism).
 - Scripts live in the `melos:` key; run with `melos run <name>`.
 - **Script schema — the melos 8.0.0 break.** A script runs either *once in the workspace root* (`run: <command>`, or the bare-string shorthand) or *once per package* (`exec:`). Since 8.0.0 the per-package command must be given as **`exec.command:`**; the old split — `run:` for the command plus `exec:` for its options — is gone, and a script that sets both `run` and `exec` is a config error. Fed to a melos 7 parser, an `exec.command` script fails with `MissingScriptCommandException: … You must specify a script to run`.
-- **Pin `^8.1.0`, not `^8.0.0`.** 8.0.0 shipped with `melos analyze` broken; it was restored in 8.1.0. Any floor below 8.1.0 can hand you a workspace whose analyze gate does not run at all.
+- **Pin `^8.1.0`, not `^8.0.0`.** 8.0.0 has no `analyze` command at all — `melos analyze` exits non-zero printing the usage list (verified locally against 8.0.0). With an `analyze` script defined it falls through to that script instead, so the command *looks* fine on a repo that spells the gate out by name and fails on one that does not. Restored in 8.1.0; any floor below it is a workspace whose analyze gate depends on where you typed it.
+- **`melos analyze` got stricter in 8.2.0.** From 8.2.0 the built-in command defaults to `--fatal-infos` for dart and flutter packages — the gate this section demands — so it finally agrees with the `analyze` script above. Calling the script (as CI does) rather than the bare command is what keeps that agreement explicit on every 8.x.
 
 ### Analyzer: zero tolerance
 

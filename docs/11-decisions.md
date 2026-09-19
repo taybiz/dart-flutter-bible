@@ -22,12 +22,11 @@ Doctrine lives in §1–§10 — that is the single source of truth. This sectio
 | Code placement | §2 Toolchain | Tests first; `examples/` for packages (pub.dev) or genuine need (e.g., core facade for GUI); never READMEs/prose |
 | Lint-enforced vs review-enforced split | §2 Toolchain | Self-enforce what's automatable; taste rules stay in review |
 | D.R.Y. — single source of truth; project docs (README/AGENTS.md) reference doctrine, never restate it | §1 Architecture, §10 Review | A second copy is a second truth; READMEs drift the moment doctrine changes |
+| melos 8 (`^8.1.0`) and the `exec.command` script schema | §2 Toolchain | 7.0.0 deleted `melos.yaml`; 8.0.0 broke the per-package script shape and shipped `melos analyze` broken (restored 8.1.0, tightened to `--fatal-infos` in 8.2.0) |
 
 ### Proposals
 
-- **melos 8 — §2 pin and script example.** `melos: ^7.0.0` → `^8.1.0` (the floor that has a working `melos analyze`), and the script example now shows the 8.x shape: `exec.command` for per-package runs, with `run` reserved for once-in-the-root. Raised by `learn_me_core`, whose scripts already use `exec.command` and cannot run on melos 7 (`MissingScriptCommandException`). Branch `proposal/melos-8`; on merge, move this row to Settled.
-
-_Otherwise none open. Propose in a PR; when settled, add a row to the table above and update the section it documents._
+_None open. Propose in a PR; when settled, add a row to the table above and update the section it documents._
 
 ### Roadmap
 
