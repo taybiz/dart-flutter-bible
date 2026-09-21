@@ -12,3 +12,5 @@ dev_dependencies:
   lints: ^5.0.0
   shouldly: ^0.5.0+1
   test: ^1.25.0
+  dart_arch_test: ^0.3.1
+  path: ^1.9.0

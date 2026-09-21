@@ -1,6 +1,6 @@
 # 10. Review Checklist
 
-- [ ] Dependencies point inward? (No domain → application/UI imports.)
+- [ ] Dependencies point inward? (No domain → application/UI imports.) Enforced by the `dart_arch_test` boundary test over the resolved import graph in CI — not by melos?
 - [ ] Any `throw`/`try`/`catch`/`on Exception` inside domain, use cases, or datasource *business* code? (Allowed: the single `TaskEither.tryCatch`/`Either.tryCatch` wrapping the third-party call in adapter methods, and the UI ring — hand-rolled `try/catch` inside adapters is *not* allowed.)
 - [ ] Entities immutable + equatable? Operations return new instances?
 - [ ] Every repository contract has **≥2 repository adapters** and runs the contract suite against all of them?
@@ -16,7 +16,7 @@
 - [ ] Write methods expose optional `IUnitOfWork? uow` on the contract; reads may take one but never require it? Adapters wrap real transactions or gracefully sink?
 - [ ] Example code in tests first? `examples/` only for packages (pub.dev) or a genuine need (e.g., core facade for GUI)? No code in READMEs/prose? Doctrine snippets small and tight?
 - [ ] D.R.Y.: no rule or decision restated in a README, AGENTS.md, or comment when the bible already has it? Project docs link to doctrine — they don't copy it.
-- [ ] `melos.yaml` anywhere? (Bad smell — migrate.)
+- [ ] `melos.yaml` anywhere? (Bad smell — migrate.) Melos, if present, scoped to a single package's scripts, never relied on to enforce package boundaries?
 - [ ] `dart analyze --fatal-infos --fatal-warnings` reports **zero diagnostics** (no errors, no warnings, no infos) and `dart test` green across the workspace?
 - [ ] No `TODO`/`FIXME` comments anywhere? Deferred work lives in the roadmap doc, not code.
 - [ ] Any `// ignore:` is per-line with a reason — no `ignore_for_file` or blanket suppressions?

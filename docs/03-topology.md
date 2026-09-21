@@ -6,11 +6,11 @@ The bulls-eye maps to repos. Two topologies are sanctioned; pick per project:
 
 ### Topology A — one workspace repo (small / pure-Dart projects)
 
-Everything in one melos workspace, exactly as laid out below. Best when there is a single delivery mechanism (CLI only) or the team is small enough that one PR per change is a feature, not a bottleneck.
+Everything in one pub workspace, exactly as laid out below. Best when there is a single delivery mechanism (CLI only) or the team is small enough that one PR per change is a feature, not a bottleneck.
 
 ```
 my_workspace/
-├── pubspec.yaml                  # workspace + melos config (no melos.yaml!)
+├── pubspec.yaml                  # workspace: (no melos.yaml!)
 ├── packages/
 │   ├── thing_domain/             # entities, value objects, repository & datasource CONTRACTS, failures
 │   ├── thing_usecases/           # application layer: use cases, orchestration
@@ -25,7 +25,7 @@ my_workspace/
 
 ```
 core/ (thing_core — pure Dart, no Flutter)
-├── pubspec.yaml                  # workspace + melos config (no melos.yaml!)
+├── pubspec.yaml                  # workspace: (no melos.yaml!)
 └── packages/
     ├── thing_domain/             # entities, contracts, failures
     ├── thing_usecases/           # application layer = the shared facade
@@ -47,7 +47,7 @@ Rules for Topology B:
 - The UI repo depends on the core via a **git dependency** (branch/tag); during cross-repo dev, `dependency_overrides` point at a local core checkout. Publishing the core to pub.dev is optional, only when outside teams consume it.
 - Platform-specific concerns (`path_provider` paths, `sqlite3_flutter_libs`) are resolved in the UI repo's composition root and injected into adapters — never imported by core packages.
 - Contract tests never live in the UI repo; they are core's job. The UI repo only tests its boundary (providers, widgets).
-- Melos workspaces stay **per-repo** — melos does not span repos. That is the price of the split; the git dep + override workflow is how we pay it.
+- Pub workspaces stay **per-repo** — a workspace does not span repos. That is the price of the split; the git dep + override workflow is how we pay it.
 
 ### The application layer is the facade
 
