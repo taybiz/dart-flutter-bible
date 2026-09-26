@@ -2,7 +2,7 @@
 
 Doctrine lives in §1–§10 — that is the single source of truth. This section only records *that* a decision was settled, *where* it is written down, and *why*. It is deliberately not a parallel doctrine index; if a section changes, the doctrine wins and this table points at the new reality.
 
-### Settled
+### 11.1 Settled
 
 | Decision | Documented in | Why |
 |---|---|---|
@@ -25,10 +25,10 @@ Doctrine lives in §1–§10 — that is the single source of truth. This sectio
 | D.R.Y. — single source of truth; project docs (README/AGENTS.md) reference doctrine, never restate it | §1 Architecture, §10 Review | A second copy is a second truth; READMEs drift the moment doctrine changes |
 | Melos is **optional** — a single-package script runner, never the monorepo orchestrator; package boundaries enforced by a `dart_arch_test` test | §2 Toolchain | Workspace orchestration over piles of unpublished packages breaks hard; melos enforces no boundary direction, and the `import_rules` plugin doesn't reliably cover workspace members. `melos analyze` floor is ^8.8.0 |
 
-### Proposals
+### 11.2 Proposals
 
 _None open. Propose in a PR; when settled, add a row to the table above and update the section it documents._
 
-### Roadmap
+### 11.3 Roadmap
 
 - **Team promotion:** this bible is destined for a team-facing git wiki. Vault doc stays canonical; the wiki is a published rendering.

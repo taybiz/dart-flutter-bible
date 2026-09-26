@@ -10,7 +10,7 @@
 | Docs | Terse `///` on declarations and their public members (1–2 lines, what+why) — **never as a file header** — dartdoc/pub.dev-ready |
 | Tests | `dart test` |
 
-### Melos: optional — a script runner, not the orchestrator
+### 2.1 Melos: optional — a script runner, not the orchestrator
 
 Melos is **optional**, not doctrine. Its best modern use is **single-package script management**: one `melos:` scripts block in a root that *is* the package (`useRootAsPackage: true`). For a **pile of packages never meant to be published individually to pub.dev, stop leaning on melos workspace orchestration** — the more you lean on package filters and cross-package `exec`, the harder it breaks, and it enforces nothing about boundary direction anyway. Native pub workspaces carry the multi-package structure; melos does not need to.
 
@@ -61,7 +61,7 @@ Notes — only if you opted into melos:
 - Pin `^8.8.0`: 8.0.0 shipped with no `melos analyze` command (restored 8.1.0, tightened to `--fatal-infos` in 8.2.0). The analyze gate is spelled out as a script rather than trusting the bare command for exactly this reason.
 - **Melos enforces no boundary rules.** Dependency direction is the responsibility of a `dart_arch_test` architecture test (below) — never a melos script.
 
-### Package-boundary rules: `dart_arch_test`, not melos (and not `import_rules`)
+### 2.2 Package-boundary rules: `dart_arch_test`, not melos (and not `import_rules`)
 
 Dependencies point inward (§1, the four laws) — that is a *package-boundary* rule, and it is enforced as an **architecture test with `dart_arch_test`**: a plain `test()` that runs in CI with everything else. Melos enforces no boundaries, and the **`import_rules`** analyzer plugin falls down on pub workspaces (it reads `import` directives only, does not reliably visit workspace-member packages, and ships defaulting to `info` severity) — it is at most an optional as-you-type nicety, never the gate.
 
@@ -148,7 +148,7 @@ Notes (verified against a two-package pub workspace):
 - It is **self-enforcing by construction**: a real test, no config files, no codegen — CI already runs it with `dart test`.
 - Keep fine-grained structural conventions (naming, `///` docs, sealed/base, param shape) in the **analyze lint gate** — do **not** re-encode them as a second arch-test layer (D.R.Y., §1). The arch test owns *direction*; lints own *shape*.
 
-### Analyzer: zero tolerance
+### 2.3 Analyzer: zero tolerance
 
 "Clean" means **zero diagnostics — errors, warnings, and infos alike.** A report of
 "zero errors, only warnings/infos remain" is not a pass; it is a failing state with a
@@ -168,11 +168,11 @@ reports a pass while any diagnostic remains is wrong, full stop.
   obvious). Never `// ignore_for_file:`. Never disable a rule in `analysis_options.yaml`.
   If a lint fires everywhere, the code is wrong — not the lint.
 
-### Dart-first editing
+### 2.4 Dart-first editing
 
 We are a Dart shop. Structural changes to `.dart` files are made with Dart tooling (`dart format`, targeted edits), never with Python/shell text-munging scripts. This is non-negotiable and applies to agent workflows too.
 
-### Docs: terse, always — and never a file header
+### 2.5 Docs: terse, always — and never a file header
 
 Public **declarations and their members** — classes, enums, extension types, top-level functions, and the public methods/fields on them — get a terse `///` doc comment (**at least one line, never more than two**). Say *what* it is and *why* it exists; never restate the implementation. This is a hard requirement: pub.dev scores on doc coverage (`public_member_api_docs`) and every dartdoc-style generator needs real comments to produce anything useful.
 
@@ -185,11 +185,11 @@ Public **declarations and their members** — classes, enums, extension types, t
 - **Use cases are the priority.** Every `*UseCase` documents what it does and what it returns.
 - Enforce it: enable `public_member_api_docs` in `analysis_options.yaml`; keep `dart analyze` clean.
 
-### Dart parameter style
+### 2.6 Dart parameter style
 
 **Named parameters, always** — with exactly two exceptions: a single positional parameter named `ref` or `message`. **Flutter widgets follow Flutter's own conventions** (framework-mandated named params, positional `child`/`key`-style usage, etc.), not these rules.
 
-### Barrel files: one public door per package
+### 2.7 Barrel files: one public door per package
 
 Each package exposes **exactly one public entry point**: `lib/<package_name>.dart`, a hand-written barrel that re-exports the public API from `lib/src/`. Everything else under `lib/` is private.
 
@@ -198,7 +198,7 @@ Each package exposes **exactly one public entry point**: `lib/<package_name>.dar
 - What's exported *is* the public API: nothing gets into the barrel until it's deliberate. Private-by-default beats doc-marking later.
 - Publishing and the wiki rendering both assume this: the barrel is the contract a package ships. It is hand-written doctrine; nothing generates it.
 
-### Code placement: tests first, examples only for packages
+### 2.8 Code placement: tests first, examples only for packages
 
 Know what we build: **cores** (pure-Dart libraries), **packages** (published to pub.dev), **CLIs**, **TUIs**, **GUIs** (Flutter). Where example code lives depends on the deliverable:
 
@@ -208,7 +208,7 @@ Know what we build: **cores** (pure-Dart libraries), **packages** (published to 
 
 See `examples/` (`bible_samples`) for the CI-tested reference.
 
-### Enforcement: lint vs. review
+### 2.9 Enforcement: lint vs. review
 
 Not every rule in this bible can be automated. Know which is which:
 

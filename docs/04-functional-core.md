@@ -2,7 +2,7 @@
 
 **`fpdart: ^1.2.0` — pinned, everywhere, always.** Never the `2.0.0-dev` line (the Effect-based rewrite is still pre-release and off-limits).
 
-### Which type, when
+### 4.1 Which type, when
 
 | Situation | Type |
 |---|---|
@@ -11,7 +11,7 @@
 | Value may be absent | `Option<T>` |
 | Sync, may be absent | `IOOption<T>` (rare) |
 
-### Failures are typed values, rust-style
+### 4.2 Failures are typed values, rust-style
 
 Failure hierarchies are per-layer, defined in the domain package, and **closed** (abstract base + final/`sealed` leaves where the language allows — a `switch` over them must be exhaustive, which is the point):
 
@@ -36,7 +36,7 @@ final class RepositoryError extends AccountFailure {
 
 Datasources get their own low-level hierarchy (`DatasourceFailure` → `SerializationFailure`, `StorageFailure`, …) that repositories **map upward** into domain failures. Never leak `DatasourceFailure` past the repository; never leak `AccountFailure` into the datasource.
 
-### Signatures
+### 4.3 Signatures
 
 ```dart
 abstract class IAccountRepository {
@@ -66,7 +66,7 @@ class GetAccountUseCase {
 }
 ```
 
-### Use-case parameters: business params, not cargo
+### 4.4 Use-case parameters: business params, not cargo
 
 A use case's `call()` takes the **actual business inputs** as discrete named parameters — `AddUserUseCase` receives `id`, `userName`, `email`, … — never a cargo/container object (`AddUserUseCase(UserBlockOfStuff(...))`).
 
@@ -75,7 +75,7 @@ Why:
 - No anonymous container types to define, serialize, or pass across layer boundaries.
 - A parameter list that outgrows ~4–5 business inputs is a smell: usually a missing entity or a use case doing too much. Reach for a domain entity (or value object) then, not a bag of fields.
 
-### Composition
+### 4.5 Composition
 
 - Chain with `flatMap` / `map` / `mapLeft`.
 - For readability, use the **Do notation** (`fpdart` supports it) instead of nested flatMaps:
@@ -94,7 +94,7 @@ final result = await Either.Do(
 
   "Adapter boundary" is a **line, not a zone**. The only try/catch-shaped code an adapter may contain is `TaskEither.tryCatch` (or `Either.tryCatch`) wrapping the third-party call itself, in the public adapter method; an exception never crosses the adapter's public API. Hand-rolled `try/catch` for imperative control flow inside an adapter is a violation — the adapter does not get a pass on the exception rule, it *owns the conversion seam* precisely because it is the code touching the throwing library.
 
-### Where the chain ends: `.run()` at the public seam
+### 4.6 Where the chain ends: `.run()` at the public seam
 
 TaskEither is the **internal** composition type. The **public seam is `Future<Either<Failure, T>>`** — repository contract methods and use case `call()` signatures are `Future<Either<...>>`, never `TaskEither<...>`.
 
@@ -102,7 +102,7 @@ TaskEither is the **internal** composition type. The **public seam is `Future<Ei
 - **Consumers (UI, CLI, other use cases) never build or run TaskEither chains.** They await a `Future<Either<...>>` and `fold` it. This is the termination the user wants: fpdart's laziness dies in the core, not in the widget tree. (Consumers will still import fpdart to `fold`/`getOrElse` an `Either` — that is expected and fine; what they never touch is chain-building, laziness, and `.run()`.)
 - **Why:** laziness leaks out of the core, it becomes a UI problem (forgetting `.run()`, mutating captured lists inside lazy callbacks, debugging chains that "did nothing"). Keep `.run()` inside the layer that built the chain; the boundary is the type change `TaskEither → Future<Either>`.
 
-### Declare the error style, loudly
+### 4.7 Declare the error style, loudly
 
 Two error styles live in our estate and a consumer must never have to discover
 which one they are holding: **FP-style tuples** (`Either` / `TaskEither` — failure
@@ -139,11 +139,11 @@ The declaration names the style and the failure type in consumer terms:
 - Omitting the declaration costs a consumer exactly two bugs: a `TaskEither` that
   never ran, and an exception thrown across a seam they believed was a value.
 
-### Equality: equatable
+### 4.8 Equality: equatable
 
 Every entity and value object `extends Equatable` with `List<Object?> get props => [...]`. This gives value semantics for `==` and `hashCode`, which fpdart pattern matching, testing, and drift row mapping all rely on. Hand-written, no codegen.
 
-### The exception rule, stated once, loudly
+### 4.9 The exception rule, stated once, loudly
 
 **Inside the bulls-eye: no `throw`, no `try/catch` (except `tryCatch` conversion at adapter boundaries), no `on Exception`.** The UI ring is the *only* place exceptions are raised or caught, and even there they should be converted into UI state as fast as possible.
 
