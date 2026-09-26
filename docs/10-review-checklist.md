@@ -1,21 +1,21 @@
 # 10. Review Checklist
 
-- [ ] Dependencies point inward? (No domain → application/UI imports.)
-- [ ] Any `throw`/`try`/`catch`/`on Exception` inside domain, use cases, or datasource *business* code? (Allowed: the single `TaskEither.tryCatch`/`Either.tryCatch` wrapping the third-party call in adapter methods, and the UI ring — hand-rolled `try/catch` inside adapters is *not* allowed.)
-- [ ] Entities immutable + equatable? Operations return new instances?
-- [ ] Every repository contract has **≥2 repository adapters** and runs the contract suite against all of them?
-- [ ] Failures typed, layer-mapped (datasource failure ≠ domain failure leaked)?
-- [ ] sqlite3 done with drift? Any other ORM/raw sqlite3 in the tree?
-- [ ] Any unapproved builder/codegen (freezed, json_serializable, riverpod_generator)? If yes — why?
-- [ ] Tests: shouldly only (no `expect()` mixing), Given/When/Then names, both Either sides covered, mocks only at the use-case seam with mocktail?
-- [ ] Every declaration and public member carries a terse `///` doc comment (1–2 lines, what+why)? **No `///` file headers** (that forces a `library;` — barrel files only)? Use cases documented?
-- [ ] Use-case `call()` takes discrete business params (`id`, `userName`, …), never cargo/container objects?
-- [ ] Dart named parameters everywhere (sole exceptions: single positional `ref`/`message`)? Flutter widgets follow Flutter conventions?
-- [ ] One hand-written barrel per package (`lib/<package>.dart` re-exports `lib/src/`), no `src/` imports across packages?
-- [ ] Write methods expose optional `IUnitOfWork? uow` on the contract; reads may take one but never require it? Adapters wrap real transactions or gracefully sink?
-- [ ] Example code in tests first? `examples/` only for packages (pub.dev) or a genuine need (e.g., core facade for GUI)? No code in READMEs/prose? Doctrine snippets small and tight?
-- [ ] D.R.Y.: no rule or decision restated in a README, AGENTS.md, or comment when the bible already has it? Project docs link to doctrine — they don't copy it.
-- [ ] `melos.yaml` anywhere? (Bad smell — migrate.)
-- [ ] `dart analyze --fatal-infos --fatal-warnings` reports **zero diagnostics** (no errors, no warnings, no infos) and `dart test` green across the workspace?
-- [ ] No `TODO`/`FIXME` comments anywhere? Deferred work lives in the roadmap doc, not code.
-- [ ] Any `// ignore:` is per-line with a reason — no `ignore_for_file` or blanket suppressions?
+- [ ] **10.1** Dependencies point inward? (No domain → application/UI imports.)
+- [ ] **10.2** Any `throw`/`try`/`catch`/`on Exception` inside domain, use cases, or datasource *business* code? (Allowed: the single `TaskEither.tryCatch`/`Either.tryCatch` wrapping the third-party call in adapter methods, and the UI ring — hand-rolled `try/catch` inside adapters is *not* allowed.)
+- [ ] **10.3** Entities immutable + equatable? Operations return new instances?
+- [ ] **10.4** Every repository contract has **≥2 repository adapters** and runs the contract suite against all of them?
+- [ ] **10.5** Failures typed, layer-mapped (datasource failure ≠ domain failure leaked)?
+- [ ] **10.6** sqlite3 done with drift? Any other ORM/raw sqlite3 in the tree?
+- [ ] **10.7** Any unapproved builder/codegen (freezed, json_serializable, riverpod_generator)? If yes — why?
+- [ ] **10.8** Tests: shouldly only (no `expect()` mixing), Given/When/Then names, both Either sides covered, mocks only at the use-case seam with mocktail?
+- [ ] **10.9** Every declaration and public member carries a terse `///` doc comment (1–2 lines, what+why)? **No `///` file headers** (that forces a `library;` — barrel files only)? Use cases documented?
+- [ ] **10.10** Use-case `call()` takes discrete business params (`id`, `userName`, …), never cargo/container objects?
+- [ ] **10.11** Dart named parameters everywhere (sole exceptions: single positional `ref`/`message`)? Flutter widgets follow Flutter conventions?
+- [ ] **10.12** One hand-written barrel per package (`lib/<package>.dart` re-exports `lib/src/`), no `src/` imports across packages?
+- [ ] **10.13** Write methods expose optional `IUnitOfWork? uow` on the contract; reads may take one but never require it? Adapters wrap real transactions or gracefully sink?
+- [ ] **10.14** Example code in tests first? `examples/` only for packages (pub.dev) or a genuine need (e.g., core facade for GUI)? No code in READMEs/prose? Doctrine snippets small and tight?
+- [ ] **10.15** D.R.Y.: no rule or decision restated in a README, AGENTS.md, or comment when the bible already has it? Project docs link to doctrine — they don't copy it.
+- [ ] **10.16** `melos.yaml` anywhere? (Bad smell — migrate.)
+- [ ] **10.17** `dart analyze --fatal-infos --fatal-warnings` reports **zero diagnostics** (no errors, no warnings, no infos) and `dart test` green across the workspace?
+- [ ] **10.18** No `TODO`/`FIXME` comments anywhere? Deferred work lives in the roadmap doc, not code.
+- [ ] **10.19** Any `// ignore:` is per-line with a reason — no `ignore_for_file` or blanket suppressions?

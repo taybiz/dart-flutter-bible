@@ -4,7 +4,7 @@ Deliverable types: **core** (pure-Dart library), **package** (published), **CLI*
 
 The bulls-eye maps to repos. Three topologies are sanctioned; pick per project:
 
-### Topology A — one workspace repo (small / pure-Dart projects)
+### 3.1 Topology A — one workspace repo (small / pure-Dart projects)
 
 Everything in one melos workspace, exactly as laid out below. Best when there is a single delivery mechanism (CLI only) or the team is small enough that one PR per change is a feature, not a bottleneck.
 
@@ -21,7 +21,7 @@ my_workspace/
     └── thing_flutter/            # UI ring — the only place exceptions live
 ```
 
-### Topology B — core repo + UI repo (default when a core serves CLI **and** Flutter)
+### 3.2 Topology B — core repo + UI repo (default when a core serves CLI **and** Flutter)
 
 ```
 core/ (thing_core — pure Dart, no Flutter)
@@ -49,7 +49,7 @@ Rules for Topology B:
 - Contract tests never live in the UI repo; they are core's job. The UI repo only tests its boundary (providers, widgets).
 - Melos workspaces stay **per-repo** — melos does not span repos. That is the price of the split; the git dep + override workflow is how we pay it.
 
-### Topology C — single-package repo (one library, one package, one delivery)
+### 3.3 Topology C — single-package repo (one library, one package, one delivery)
 
 A repo that genuinely holds **one** package — a published package, or a pure-Dart library with a single delivery mechanism — is **still a melos workspace**. The package *is* the workspace root, so the config lives in its own `pubspec.yaml` and melos is a dev dependency. What that buys is the tool belt around the code: one place for the scripts CI calls, `melos run`, and the release flow (`melos version` for the changelog and tag, `melos publish`). A single-package repo does not drop melos to save a file.
 
@@ -74,7 +74,7 @@ Rules for Topology C:
 - CI calls the scripts (`dart run melos run analyze`), never the raw commands, so a script that rots fails the build instead of quietly passing.
 - The release is a plain `vX.Y.Z` tag — package-prefixed tags are for workspace members.
 
-### The application layer is the facade
+### 3.4 The application layer is the facade
 
 The application layer (use cases) **is** the shared public face of the core — the one seam every delivery mechanism consumes:
 
@@ -82,7 +82,7 @@ The application layer (use cases) **is** the shared public face of the core — 
 - **UI** (`thing_flutter`): providers wrap the same use cases. No use case is aware Flutter exists.
 - A **facade** (a plain class composing use cases with chosen adapters) is optional convenience for wiring, never a new logic layer. If CLI and UI composition differ, skip the facade — the use cases are the API.
 
-### Package rules
+### 3.5 Package rules
 
 - **One class per file, one file per class.** Barrel exports (`lib/thing_domain.dart`) expose the public API.
 - `thing_domain` depends on `equatable` + `fpdart` only. Nothing else. No Flutter, no I/O, no JSON package (hand-written serialization or none).
