@@ -2,7 +2,7 @@
 
 Doctrine lives in §1–§10 — that is the single source of truth. This section only records *that* a decision was settled, *where* it is written down, and *why*. It is deliberately not a parallel doctrine index; if a section changes, the doctrine wins and this table points at the new reality.
 
-### Settled
+### 11.1 Settled
 
 | Decision | Documented in | Why |
 |---|---|---|
@@ -25,10 +25,10 @@ Doctrine lives in §1–§10 — that is the single source of truth. This sectio
 | melos 8 (`^8.8.0`) and the `exec.command` script schema | §2 Toolchain | 7.0.0 deleted `melos.yaml`; 8.0.0 broke the per-package script shape and shipped with no `melos analyze` command (restored 8.1.0, tightened to `--fatal-infos` in 8.2.0) |
 | Single-package repos still run melos | §3 Topology (C), §2 Toolchain | The package *is* the workspace root (`melos: useRootAsPackage: true`); dropping melos to save a file loses `melos run` and the changelog/tag/publish flow |
 
-### Proposals
+### 11.2 Proposals
 
 _None open. Propose in a PR; when settled, add a row to the table above and update the section it documents._
 
-### Roadmap
+### 11.3 Roadmap
 
 - **Team promotion:** this bible is destined for a team-facing git wiki. Vault doc stays canonical; the wiki is a published rendering.

@@ -2,19 +2,19 @@
 
 Flutter is delivery. All the doctrine above applies *behind* it; this section is about the boundary.
 
-### Exceptions live here
+### 8.1 Exceptions live here
 
 - This is the **only** place `throw` and `try/catch` appear.
 - A use case returns `Either<AccountFailure, Account>`; the widget/controller layer `fold`s it into UI state (loaded / error message / empty). The error message text is derived from the failure type at the boundary — domain failures never carry display strings.
 - Third-party UI/plugin exceptions (image decode, platform channel) get caught here, converted to a user-visible state, and logged. Never swallowed.
 
-### State management
+### 8.2 State management
 
 **Riverpod with plain providers** (`flutter_riverpod`) — settled doctrine, no generator (`riverpod_annotation` is banned, §7). Use cases are exposed as providers; widgets reach use cases through providers and never see repositories, datasources, or entity construction. fpdart's own docs and examples use Riverpod, so the integration is well-trodden.
 
 **Riverpod NEVER enters the core.** Zero `flutter_riverpod` imports in domain, use cases, or datasource packages — the core is pure Dart (§3) and must stay buildable headless. If a core package "needs" a provider, the design is wrong: the use case is the seam, and the provider wraps *it*. Riverpod lives in the UI ring only — `flutter_riverpod` may appear only in the Flutter app's composition root and widgets/providers.
 
-### The only seam: use cases
+### 8.3 The only seam: use cases
 
 **Widgets interact with exactly one thing: use cases** (normally reached through providers). Hard rule, not a preference:
 
@@ -43,7 +43,7 @@ class AccountView extends ConsumerWidget {
 }
 ```
 
-### Widget conventions
+### 8.4 Widget conventions
 
 - **Dumb widgets:** widgets render state and emit events; they do not contain business rules, validation, or storage logic.
 - One-direction flow: event → provider → use case → state → widget rebuild.
@@ -51,7 +51,7 @@ class AccountView extends ConsumerWidget {
 - No `BuildContext` passed into use cases or repositories, ever.
 - **Pitfall (field report): don't move a widget under a stationary cursor if you rely on `MouseRegion.onExit`.** Flutter deliberately does not fire `onExit` when a widget moves beneath a stationary pointer (flutter/flutter#44957) — inside a `ListView` the mouse tracker silently drops the annotation. A warning rendered ABOVE a button pushed the button down ~52px on arming, so the armed state never disarmed and the pointer was left hanging over the warning. Keep the button stationary; render warnings below it, or sync the armed state from state rather than exit events.
 
-### Flutter tests
+### 8.5 Flutter tests
 
 - Widget tests at `apps/thing_flutter/test` — pump with a test provider container (real in-memory adapters, not mocks, where possible), assert with shouldly.
 - `NativeDatabase.memory()` and `databaseFactoryMemory` work in widget tests too — no platform-channel stubbing needed for the persistence path.

@@ -1,6 +1,6 @@
 # 6. Testing Doctrine
 
-### The idiom: shouldly, "should be"
+### 6.1 The idiom: shouldly, "should be"
 
 **`shouldly`** (yes, `shouldly` — pronounced "should-lee", package on pub.dev) is the assertion library. The idiom is plain-English: `value.should.be(...)`.
 
@@ -26,7 +26,7 @@ group('Given GetAccountUseCase', () {
 });
 ```
 
-### Where tests live (layer matrix)
+### 6.2 Where tests live (layer matrix)
 
 | Layer | Package | Technique |
 |---|---|---|
@@ -36,17 +36,17 @@ group('Given GetAccountUseCase', () {
 | Contract | shared test suite | Run the same assertions against **every** adapter |
 | UI ring | `thing_flutter/test` | Widget tests; pump widgets, assert rendered state with shouldly |
 
-### Mocktail
+### 6.3 Mocktail
 
 - **`mocktail`** for mocks — and only at the application layer, mocking interfaces we own (repository/datasource contracts). Never mock a third-party class; adapters exist to isolate those.
 - Prefer real in-memory doubles over mocks when one exists (the second adapter *is* the double).
 - `registerFallbackValue` when a mock receives objects.
 
-### Coverage of failure paths
+### 6.4 Coverage of failure paths
 
 Every use case test asserts **both** sides of the Either: the `Right` happy path and each `Left` failure (missing entity, invalid input, repository error). A failure path without a test is a bug waiting for the UI to display it.
 
-### Pitfalls (field reports)
+### 6.5 Pitfalls (field reports)
 
 Things that have actually bitten people, so they bite no one twice:
 
