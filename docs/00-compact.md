@@ -7,7 +7,7 @@
 # DART/FLUTTER BIBLE — COMPACT (bot ingest)
 
 ## IDENTITY
-- Repo: staylorx/dart-flutter-bible (fork of taybiz/dart-flutter-bible). Authoritative. License: MIT.
+- Repo: taybiz/dart-flutter-bible (fork of taybiz/dart-flutter-bible). Authoritative. License: MIT.
 - Framing: "our standard — open to change by proposal", not "the law".
 
 ## RULES (non-negotiable)
@@ -74,6 +74,6 @@
 - Docs: terse `///` on declarations and their members (1-2 lines, what+why), **never as a file header** (file-level `///` requires a `library;` — barrels only); public_member_api_docs ON; use cases documented. Params: named except single positional ref/message; usecase call() = discrete business params, never cargo objects. Barrels: one hand-written per package (lib/<pkg>.dart), never import src/ across packages. Flutter follows Flutter conventions.
 
 ## LINKS
-- Repo: https://github.com/staylorx/dart-flutter-bible · Wiki: https://github.com/staylorx/dart-flutter-bible/wiki
+- Repo: https://github.com/taybiz/dart-flutter-bible · Wiki: https://github.com/taybiz/dart-flutter-bible/wiki
 - Examples: `examples/` — bible_samples package, CI-tested (dart analyze --fatal-infos --fatal-warnings + dart test on every push)
 - Full docs: docs/01-architecture.md .. docs/12-sources.md (this blob = docs/00-compact.md)
