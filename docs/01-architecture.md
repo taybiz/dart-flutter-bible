@@ -50,6 +50,7 @@ Doctrine lives here, in exactly one place. Repo docs (README, AGENTS.md) and cod
 - The bible is the doctrine source. A repo's AGENTS.md records only that repo's deviations and local wiring; READMEs orient (what it is, how to run it) and carry no rules or architecture.
 - If a rule already exists, link to it — do not copy it into another doc.
 - Any fact stated twice will drift; when two copies disagree, both are suspect and the fix is deletion, not reconciliation.
+- **Repo docs hold separate jobs so none of them becomes a diary.** `BACKLOG.md` is a queue, not a warstory: one terse entry per unique, actionable item, each pick-up-able whole by automation — never a narrative, rationale, or metanarrative. The keen, non-obvious decisions and the *why* belong in `CHANGELOG.md`; the "keep your footing here" operational knowledge (deviations, local wiring, pitfalls) belongs in `AGENTS.md`. A fact that lands in two of these will drift — move it to its one home, don't restate it.
 
 ### 1.4 The API surface (docs, params, style)
 
