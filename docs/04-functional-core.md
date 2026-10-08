@@ -1,6 +1,6 @@
 # 4. The Functional Core (fpdart)
 
-**`fpdart: ^1.2.0` — pinned, everywhere, always.** Never the `2.0.0-dev` line (the Effect-based rewrite is still pre-release and off-limits).
+**`fpdart: ^1.2.0` — pinned, everywhere, always.** Never the `2.0.0-dev` line (the Effect-based rewrite is still pre-release and off-limits). **`equatable`: the latest stable major — `^3.x` today, not a snapshot pin.** Unlike fpdart there is no off-limits line to exclude, so pinning the major buys nothing and goes stale; a stale pin is what makes a conforming repo look deviant. A pin means a documented exclusion, never a snapshot.
 
 ### 4.1 Which type, when
 

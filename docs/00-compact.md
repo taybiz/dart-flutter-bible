@@ -30,7 +30,7 @@
 - D.R.Y.: single source of truth — doctrine lives HERE; project READMEs/AGENTS.md reference rules, never restate them (a second copy is a second truth). Repo AGENTS.md = that repo's deviations + local wiring only; READMEs orient, carry no rules/architecture.
 
 ## STACK (pinned)
-- fpdart ^1.2.0 · equatable ^2.x · shouldly (assertions, "should be" idiom) · mocktail (mocks, usecase seam only) · drift + drift_dev + build_runner (sqlite3 ORM; SANCTIONED codegen) · sembast (pure-Dart file store) · flutter_riverpod (plain providers) · go_router (nav). Dev/tests: dart_arch_test (architecture/boundary tests). Optional: melos ^8.8.0 (single-package scripts only).
+- fpdart ^1.2.0 (pinned; 2.0-dev is off-limits) · equatable latest stable major (3.x today; NOT pinned — a pin means a documented exclusion, never a snapshot) · shouldly (assertions, "should be" idiom) · mocktail (mocks, usecase seam only) · drift + drift_dev + build_runner (sqlite3 ORM; SANCTIONED codegen) · sembast (pure-Dart file store) · flutter_riverpod (plain providers) · go_router (nav). Dev/tests: dart_arch_test (architecture/boundary tests). Optional: melos ^8.8.0 (single-package scripts only).
 
 ## BANNED
 - freezed, json_serializable, riverpod_generator, retrofit, get_it/injectable, raw sqlite3 without drift.
