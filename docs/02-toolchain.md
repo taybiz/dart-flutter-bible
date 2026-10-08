@@ -100,7 +100,7 @@ Public **declarations and their members** — classes, enums, extension types, t
 
 ### 2.5 Dart parameter style
 
-**Named parameters, always** — with exactly two exceptions: a single positional parameter named `ref` or `message`. **Flutter widgets follow Flutter's own conventions** (framework-mandated named params, positional `child`/`key`-style usage, etc.), not these rules.
+**Named parameters, always** — with exactly three exceptions: a single positional parameter named `ref`, `message`, or `value`. **Flutter widgets follow Flutter's own conventions** (framework-mandated named params, positional `child`/`key`-style usage, etc.), not these rules.
 
 ### 2.6 Barrel files: one public door per package
 
