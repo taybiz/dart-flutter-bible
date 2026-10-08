@@ -1,4 +1,4 @@
-name: examples-ci
+name: example-ci
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
   pull_request:
 
 jobs:
-  examples:
+  example:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -15,10 +15,10 @@ jobs:
           sdk: stable
       - name: Install dependencies
         run: dart pub get
-        working-directory: examples
+        working-directory: example
       - name: Analyze
         run: dart analyze --fatal-infos --fatal-warnings
-        working-directory: examples
+        working-directory: example
       - name: Test
         run: dart test
-        working-directory: examples
+        working-directory: example

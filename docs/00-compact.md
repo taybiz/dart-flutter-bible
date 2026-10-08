@@ -25,7 +25,7 @@
 - TERSE DOCS: `///` on declarations and their public members (1-2 lines, what+why, never how) — **never as a file header** (file-level `///` requires a `library;` — barrels only) — dartdoc/pub.dev-ready; `public_member_api_docs` lint ON. Use cases MUST be documented.
 - PARAMS: usecase/repo methods take DISCRETE business params (id, userName, ...), never cargo objects (AddUserUseCase(UserBlockOfStuff) = NO). Dart: named params except single positional `ref`/`message`; Flutter follows Flutter.
 - ENFORCEMENT: lint-enforced (analyze gate) = public_member_api_docs + implementation_imports (default-on); review-enforced (§10) = cargo params, barrel freshness. Don't invent lints for taste rules. CLEAN = ZERO diagnostics of ANY severity (errors+warnings+infos); gate = dart analyze --fatal-infos --fatal-warnings; todo:error in analysis_options (roadmap doc, not code comments); ignores per-line only, never ignore_for_file/blanket.
-- CODE PLACEMENT: tests FIRST for example code; `examples/` only for packages (pub.dev) or genuine need (e.g., core facade for GUI implementers); never READMEs/prose; doctrine docs carry tight snippets only.
+- CODE PLACEMENT: tests FIRST for example code; `example/` (SINGULAR — pub.dev builds its Example tab from `example/`) only for packages or genuine need (e.g., core facade for GUI implementers); never READMEs/prose; doctrine docs carry tight snippets only.
 - D.R.Y.: single source of truth — doctrine lives HERE; project READMEs/AGENTS.md reference rules, never restate them (a second copy is a second truth). Repo AGENTS.md = that repo's deviations + local wiring only; READMEs orient, carry no rules/architecture.
 
 ## STACK (pinned)
@@ -75,5 +75,5 @@
 
 ## LINKS
 - Repo: https://github.com/taybiz/dart-flutter-bible · Wiki: https://github.com/taybiz/dart-flutter-bible/wiki
-- Examples: `examples/` — bible_samples package, CI-tested (dart analyze --fatal-infos --fatal-warnings + dart test on every push)
+- Examples: `example/` — bible_samples package, CI-tested (dart analyze --fatal-infos --fatal-warnings + dart test on every push)
 - Full docs: docs/01-architecture.md .. docs/12-sources.md (this blob = docs/00-compact.md)
