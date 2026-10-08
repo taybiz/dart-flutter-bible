@@ -7,7 +7,7 @@
 # DART/FLUTTER BIBLE — COMPACT (bot ingest)
 
 ## IDENTITY
-- Repo: taybiz/dart-flutter-bible (fork of taybiz/dart-flutter-bible). Authoritative. License: MIT.
+- Repo: taybiz/dart-flutter-bible. Authoritative. License: MIT.
 - Framing: "our standard — open to change by proposal", not "the law".
 
 ## RULES (non-negotiable)
