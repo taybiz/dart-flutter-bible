@@ -14,7 +14,7 @@ Doctrine lives in §1–§10 — that is the single source of truth. This sectio
 | fpdart ^1.2.0 pinned everywhere | §4 Functional Core | Failure is a value; 2.0-dev is a pre-release Effect rewrite |
 | Terse `///` on declarations and members; never a file header (barrels only) | §2 Toolchain | dartdoc/pub.dev-ready; `public_member_api_docs` gates it; file-level `///` requires `library;` — that's for barrels |
 | Use-case `call()` takes discrete business params | §4 Functional Core | Signature is the documentation; no cargo objects |
-| Named params (sole exceptions: `ref`/`message`); Flutter follows Flutter | §2 Toolchain | Readable call sites; don't fight the framework |
+| Named params (sole exceptions: `ref`/`message`/`value`); Flutter follows Flutter | §2 Toolchain | Readable call sites; don't fight the framework |
 | One hand-written barrel per package | §2 Toolchain | `src/` is private; what's exported *is* the public API |
 | UnitOfWork | §5 Persistence | Optional `IUnitOfWork? uow` on write methods; reads may take one too; adapters wrap real transactions or gracefully sink |
 | fpdart termination | §4 Functional Core | Public seam is `Future<Either<F,T>>`; `.run()` at the public method boundary inside the layer; consumers never build/run TaskEither chains |
