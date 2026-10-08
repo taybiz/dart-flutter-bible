@@ -111,15 +111,15 @@ Each package exposes **exactly one public entry point**: `lib/<package_name>.dar
 - What's exported *is* the public API: nothing gets into the barrel until it's deliberate. Private-by-default beats doc-marking later.
 - Publishing and the wiki rendering both assume this: the barrel is the contract a package ships. It is hand-written doctrine; nothing generates it.
 
-### 2.7 Code placement: tests first, examples only for packages
+### 2.7 Code placement: tests first, `example/` only for packages
 
 Know what we build: **cores** (pure-Dart libraries), **packages** (published to pub.dev), **CLIs**, **TUIs**, **GUIs** (Flutter). Where example code lives depends on the deliverable:
 
 - **Tests are the default home for all example code** — fully exercised and documented there. If it compiles and demonstrates something, it belongs in a test before anywhere else.
-- **`examples/` is a package deliverable.** pub.dev expects it, so published packages get a real, CI-tested `examples/`. Non-published deliverables (cores, CLIs, TUIs, GUIs) skip it unless there's a genuine need — e.g., a core ships a small facade example so GUI implementers can see the seam wired. Otherwise: tests.
-- **Never in READMEs or prose documentation**, with the very smallest exceptions (a one-line command, a filename). The doctrine docs themselves may carry small illustrative snippets — tight, not piles — but anything that must compile and stay true is a test or `examples/`.
+- **`example/` is a package deliverable.** pub.dev builds its Example tab from an `example/` directory — singular, per the [package layout](https://dart.dev/tools/pub/package-layout) convention (`example/README.md`, `example/example.dart` or `example/lib/main.dart`). So published packages get a real, CI-tested `example/`; `examples/` (plural) is not the pub.dev convention. Non-published deliverables (cores, CLIs, TUIs, GUIs) skip it unless there's a genuine need — e.g., a core ships a small facade example so GUI implementers can see the seam wired. Otherwise: tests.
+- **Never in READMEs or prose documentation**, with the very smallest exceptions (a one-line command, a filename). The doctrine docs themselves may carry small illustrative snippets — tight, not piles — but anything that must compile and stay true is a test or `example/`.
 
-See `examples/` (`bible_samples`) for the CI-tested reference.
+See `example/` (`bible_samples`) for the CI-tested reference.
 
 ### 2.8 Enforcement: lint vs. review
 
@@ -220,7 +220,7 @@ void main() {
 Notes (verified against a two-package pub workspace):
 - **`Collector.buildGraph` resolves the full import graph across the whole workspace** — real analyzer resolution keyed by canonical `package:` URIs. Point it at the workspace root and it sees every member package. This is what substring/folder heuristics (and `import_rules` in practice) cannot do.
 - **The glob DSL is package-name-blind — do not use it for package boundaries.** `dart_arch_test` strips the `package:<name>/` prefix before matching, so whole-package patterns (`filesMatching('thing_domain/**')`, `defineOnion`/`defineLayers` keyed on package names) match **nothing** in a multi-package workspace, and a planted cross-package violation sails through silently. Write **plain assertions over `package:` URIs** (the `checkBoundary` helper above) for direction. `filesMatching('**')` / `allFiles()` still match everything, so workspace-wide cycle checks work.
-- **Root resolution: use `Directory.current` + walk-up, never `Platform.script`.** Under some runners (`dart test`) `Platform.script` points at the runner's kernel snapshot in a scratch dir, so a graph built from it is empty and every rule passes vacuously (verified). The `workspaceRoot()` helper walks up from CWD to the `workspace:` pubspec. See the live, CI-run test in `examples/test/architecture_test.dart` for the working pattern.
+- **Root resolution: use `Directory.current` + walk-up, never `Platform.script`.** Under some runners (`dart test`) `Platform.script` points at the runner's kernel snapshot in a scratch dir, so a graph built from it is empty and every rule passes vacuously (verified). The `workspaceRoot()` helper walks up from CWD to the `workspace:` pubspec. See the live, CI-run test in `example/test/architecture_test.dart` for the working pattern.
 - `shouldBeFreeOfCycles(allFiles(), graph)` is the cycle gate; it is workspace-wide and reliable.
 - It is **self-enforcing by construction**: a real test, no config files, no codegen — CI already runs it with `dart test`.
 - Keep fine-grained structural conventions (naming, `///` docs, sealed/base, param shape) in the **analyze lint gate** — do **not** re-encode them as a second arch-test layer (D.R.Y., §1). The arch test owns *direction*; lints own *shape*.
