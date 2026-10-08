@@ -18,12 +18,14 @@ Doctrine lives in §1–§10 — that is the single source of truth. This sectio
 | One hand-written barrel per package | §2 Toolchain | `src/` is private; what's exported *is* the public API |
 | UnitOfWork | §5 Persistence | Optional `IUnitOfWork? uow` on write methods; reads may take one too; adapters wrap real transactions or gracefully sink |
 | fpdart termination | §4 Functional Core | Public seam is `Future<Either<F,T>>`; `.run()` at the public method boundary inside the layer; consumers never build/run TaskEither chains |
+| Error style is declared, never inferred | §4 Functional Core | Two styles are in the estate (FP-style tuples, plain exceptions); the consumer must be told which one they hold. Named in the barrel, the README, and — on any deviation — `AGENTS.md`. Silence is the violation, not the choice |
 | Riverpod never in core | §8 Flutter Ring | Core = pure Dart, zero `flutter_riverpod`; providers wrap use cases in the UI ring only |
 | Code placement | §2 Toolchain | Tests first; `examples/` for packages (pub.dev) or genuine need (e.g., core facade for GUI); never READMEs/prose |
 | Lint-enforced vs review-enforced split | §2 Toolchain | Self-enforce what's automatable; taste rules stay in review |
 | D.R.Y. — single source of truth; project docs (README/AGENTS.md) reference doctrine, never restate it | §1 Architecture, §10 Review | A second copy is a second truth; READMEs drift the moment doctrine changes |
+| Melos is **optional** — a single-package script runner, never the monorepo orchestrator; package boundaries enforced by a `dart_arch_test` test | §2 Toolchain | Workspace orchestration over piles of unpublished packages breaks hard; melos enforces no boundary direction, and the `import_rules` plugin doesn't reliably cover workspace members. `melos analyze` floor is ^8.8.0 |
 | melos 8 (`^8.8.0`) and the `exec.command` script schema | §2 Toolchain | 7.0.0 deleted `melos.yaml`; 8.0.0 broke the per-package script shape and shipped with no `melos analyze` command (restored 8.1.0, tightened to `--fatal-infos` in 8.2.0) |
-| Single-package repos still run melos | §3 Topology (C), §2 Toolchain | The package *is* the workspace root (`melos: useRootAsPackage: true`); dropping melos to save a file loses `melos run` and the changelog/tag/publish flow |
+| Single-package repos may still run melos | §3 Topology (C), §2 Toolchain | The package *is* the workspace root (`melos: useRootAsPackage: true`); keeping melos there buys `melos run` and the changelog/tag/publish flow |
 
 ### 11.2 Proposals
 

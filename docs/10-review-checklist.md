@@ -1,6 +1,6 @@
 # 10. Review Checklist
 
-- [ ] **10.1** Dependencies point inward? (No domain → application/UI imports.)
+- [ ] **10.1** Dependencies point inward? (No domain → application/UI imports.) Enforced by the `dart_arch_test` boundary test over the resolved import graph in CI — not by melos?
 - [ ] **10.2** Any `throw`/`try`/`catch`/`on Exception` inside domain, use cases, or datasource *business* code? (Allowed: the single `TaskEither.tryCatch`/`Either.tryCatch` wrapping the third-party call in adapter methods, and the UI ring — hand-rolled `try/catch` inside adapters is *not* allowed.)
 - [ ] **10.3** Entities immutable + equatable? Operations return new instances?
 - [ ] **10.4** Every repository contract has **≥2 repository adapters** and runs the contract suite against all of them?
@@ -15,7 +15,8 @@
 - [ ] **10.13** Write methods expose optional `IUnitOfWork? uow` on the contract; reads may take one but never require it? Adapters wrap real transactions or gracefully sink?
 - [ ] **10.14** Example code in tests first? `examples/` only for packages (pub.dev) or a genuine need (e.g., core facade for GUI)? No code in READMEs/prose? Doctrine snippets small and tight?
 - [ ] **10.15** D.R.Y.: no rule or decision restated in a README, AGENTS.md, or comment when the bible already has it? Project docs link to doctrine — they don't copy it.
-- [ ] **10.16** `melos.yaml` anywhere? (Bad smell — migrate.)
+- [ ] **10.16** `melos.yaml` anywhere? (Bad smell — migrate.) Melos, if present, scoped to a single package's scripts, never relied on to enforce package boundaries?
 - [ ] **10.17** `dart analyze --fatal-infos --fatal-warnings` reports **zero diagnostics** (no errors, no warnings, no infos) and `dart test` green across the workspace?
 - [ ] **10.18** No `TODO`/`FIXME` comments anywhere? Deferred work lives in the roadmap doc, not code.
 - [ ] **10.19** Any `// ignore:` is per-line with a reason — no `ignore_for_file` or blanket suppressions?
+- [ ] **10.20** Error style **declared** — the barrel doc comment, the README, and (on any deviation from the `Future<Either<...>>` default) `AGENTS.md` all state whether consumers get FP-style tuples or plain exceptions?

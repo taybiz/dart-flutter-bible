@@ -110,4 +110,41 @@ Every entity and value object `extends Equatable` with `List<Object?> get props 
 
 **Inside the bulls-eye: no `throw`, no `try/catch` (except `tryCatch` conversion at adapter boundaries), no `on Exception`.** The UI ring is the *only* place exceptions are raised or caught, and even there they should be converted into UI state as fast as possible.
 
+### 4.9 Declare the error style, loudly
+
+Two error styles live in our estate and a consumer must never have to discover
+which one they are holding: **FP-style tuples** (`Either` / `TaskEither` — failure
+is a value) or **plain exceptions** (failure is thrown). Every package declares
+which one it presents, in the same words, in all of these:
+
+1. **the package barrel's doc comment** (`lib/<pkg>.dart`) — the IDE tooltip and
+   the pub.dev API page;
+2. **the package README**, near the top, so it is read before the first call is
+   written;
+3. **the repo's `AGENTS.md`**, whenever the package deviates from the default
+   below.
+
+The declaration names the style and the failure type in consumer terms:
+
+> This package presents **FP-style tuples**: every call returns
+> `TaskEither<Failure, T>`; `.run()` it for `Future<Either<Failure, T>>`.
+
+> This package presents **plain exceptions**: it throws `FooException`; catch at
+> your boundary.
+
+- **Default:** core packages present `Future<Either<Failure, T>>` and terminate
+  their own chains (above). A package that hands the consumer the unrun
+  `TaskEither` instead is **not** a violation *provided it declares it* — seeing a
+  tuple is how a consumer knows to `.run()` it. The violation is silence, never
+  the choice.
+- **Exceptions are never the default in the bulls-eye.** A package that presents
+  them says where they are raised and caught (see *The exception rule*, §4.8) and
+  keeps them out of domain and use cases.
+- The declaration describes the **seam**, not the internals: a package with pure
+  `TaskEither` internals may present `Future<Either<...>>`, and a package that
+  presents tuples may still throw inside a widget. Internal composition never
+  changes what the caller receives.
+- Omitting the declaration costs a consumer exactly two bugs: a `TaskEither` that
+  never ran, and an exception thrown across a seam they believed was a value.
+
 ---
