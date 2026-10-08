@@ -14,7 +14,7 @@
 - [ ] **10.12** One hand-written barrel per package (`lib/<package>.dart` re-exports `lib/src/`), no `src/` imports across packages?
 - [ ] **10.13** Write methods expose optional `IUnitOfWork? uow` on the contract; reads may take one but never require it? Adapters wrap real transactions or gracefully sink?
 - [ ] **10.14** Example code in tests first? `example/` (singular — the pub.dev convention) only for packages or a genuine need (e.g., core facade for GUI)? No code in READMEs/prose? Doctrine snippets small and tight?
-- [ ] **10.15** D.R.Y.: no rule or decision restated in a README, AGENTS.md, or comment when the bible already has it? Project docs link to doctrine — they don't copy it.
+- [ ] **10.15** D.R.Y.: no rule or decision restated in a README, AGENTS.md, or comment when the bible already has it? Project docs link to doctrine — they don't copy it. Does `BACKLOG.md` stay a terse queue (one unique actionable item each, pick-up-able by automation), not a warstory/metanarrative diary — with keen decisions in `CHANGELOG.md` and keep-your-footing knowledge in `AGENTS.md`?
 - [ ] **10.16** `melos.yaml` anywhere? (Bad smell — migrate.) Melos, if present, scoped to a single package's scripts, never relied on to enforce package boundaries?
 - [ ] **10.17** `dart analyze --fatal-infos --fatal-warnings` reports **zero diagnostics** (no errors, no warnings, no infos) and `dart test` green across the workspace?
 - [ ] **10.18** No `TODO`/`FIXME` comments anywhere? Deferred work lives in the roadmap doc, not code.
