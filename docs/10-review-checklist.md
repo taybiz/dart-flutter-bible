@@ -10,7 +10,7 @@
 - [ ] **10.8** Tests: shouldly only (no `expect()` mixing), Given/When/Then names, both Either sides covered, mocks only at the use-case seam with mocktail?
 - [ ] **10.9** Every declaration and public member carries a terse `///` doc comment (1–2 lines, what+why)? **No `///` file headers** (that forces a `library;` — barrel files only)? Use cases documented?
 - [ ] **10.10** Use-case `call()` takes discrete business params (`id`, `userName`, …), never cargo/container objects?
-- [ ] **10.11** Dart named parameters everywhere (sole exceptions: single positional `ref`/`message`)? Flutter widgets follow Flutter conventions?
+- [ ] **10.11** Dart named parameters everywhere (sole exceptions: single positional `ref`/`message`/`value`)? Flutter widgets follow Flutter conventions?
 - [ ] **10.12** One hand-written barrel per package (`lib/<package>.dart` re-exports `lib/src/`), no `src/` imports across packages?
 - [ ] **10.13** Write methods expose optional `IUnitOfWork? uow` on the contract; reads may take one but never require it? Adapters wrap real transactions or gracefully sink?
 - [ ] **10.14** Example code in tests first? `example/` (singular — the pub.dev convention) only for packages or a genuine need (e.g., core facade for GUI)? No code in READMEs/prose? Doctrine snippets small and tight?
