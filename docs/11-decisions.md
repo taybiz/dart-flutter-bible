@@ -26,6 +26,7 @@ Doctrine lives in §1–§10 — that is the single source of truth. This sectio
 | Melos is **optional** — a single-package script runner, never the monorepo orchestrator; package boundaries enforced by a `dart_arch_test` test | §2 Toolchain | Workspace orchestration over piles of unpublished packages breaks hard; melos enforces no boundary direction, and the `import_rules` plugin doesn't reliably cover workspace members. `melos analyze` floor is ^8.8.0 |
 | melos 8 (`^8.8.0`) and the `exec.command` script schema | §2 Toolchain | 7.0.0 deleted `melos.yaml`; 8.0.0 broke the per-package script shape and shipped with no `melos analyze` command (restored 8.1.0, tightened to `--fatal-infos` in 8.2.0) |
 | Single-package repos may still run melos | §3 Topology (C), §2 Toolchain | The package *is* the workspace root (`melos: useRootAsPackage: true`); keeping melos there buys `melos run` and the changelog/tag/publish flow |
+| GUI testing gate: deterministic `integration_test` in CI; marionette_flutter (debug-only binding) + marionette_mcp as the dev-time agent layer, never the gate | §6 Testing, §8 Flutter Ring | An agent deciding what to tap is never a repeatable gate; `integration_test` is. Marionette stays GUI-ring-only and debug-only |
 
 ### 11.2 Proposals
 

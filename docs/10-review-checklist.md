@@ -20,3 +20,4 @@
 - [ ] **10.18** No `TODO`/`FIXME` comments anywhere? Deferred work lives in the roadmap doc, not code.
 - [ ] **10.19** Any `// ignore:` is per-line with a reason — no `ignore_for_file` or blanket suppressions?
 - [ ] **10.20** Error style **declared** — the barrel doc comment, the README, and (on any deviation from the `Future<Either<...>>` default) `AGENTS.md` all state whether consumers get FP-style tuples or plain exceptions?
+- [ ] **10.21** GUI-changing work ships with interaction coverage that runs in CI — widget and/or `integration_test` (`flutter test integration_test/…`)? Marionette, if used, has `MarionetteBinding` initialized **only** under `kDebugMode` (no release surface), and `marionette_mcp` stays a dev tool, never an app dependency?
