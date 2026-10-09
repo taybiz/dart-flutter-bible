@@ -12,15 +12,15 @@
 
 ## RULES (non-negotiable)
 - Bulls-eye clean architecture: entities at center; dependencies point INWARD; flow one direction UI -> usecase -> repository -> datasource.
-- Exceptions ONLY at the UI ring. Everywhere else, failure is a VALUE.
-- fpdart ALWAYS: Either (sync), TaskEither (async), Option (absence). Pin ^1.2.0; NEVER 2.0-dev (Effect rewrite, pre-release). Public seam = `Future<Either<F,T>>`; `.run()` at the public method boundary inside the layer (TaskEither is internal composition; consumers never build/run chains).
+- Exceptions ONLY at the outermost ring — the Flutter UI boundary or a CLI/TUI's composition root. Everywhere else, failure is a VALUE.
+- fpdart ALWAYS: Either (sync), TaskEither (async), Option (absence). Pin ^1.2.0; NEVER 2.0-dev (Effect rewrite, pre-release). Public seam DEFAULTS to `Future<Either<F,T>>` (`.run()` inside the layer); a package may present the unrun `TaskEither` when it DECLARES the style (§4.9) and the consumer runs it; consumers never compose chains across a seam.
 - equatable on every entity/value object: immutable, const constructors, props list.
 - Failures: sealed hierarchies PER LAYER (domain / datasource). Datasource failures mapped upward at the repository. switch over failures is exhaustive.
 - tryCatch ONLY at adapter boundaries, converting third-party exceptions -> Left. Adapter boundary = a LINE not a zone: only `TaskEither.tryCatch`/`Either.tryCatch` wrapping the third-party call itself; hand-rolled try/catch inside adapters = VIOLATION. No throw/try/catch in domain or usecases.
 - AT-LEAST-TWO REPOSITORY ADAPTER RULE: every repository contract gets >=2 repository adapters + a shared contract suite run against ALL of them.
 - ERROR STYLE IS DECLARED, LOUDLY: every package says whether consumers get FP-style tuples (Either/TaskEither) or plain exceptions — in the barrel doc comment, the README, and (if it deviates from the Future<Either> default) its AGENTS.md. Silence is the violation, never the choice.
 - WIDGETS -> USECASES ONLY: no widget imports repository, datasource, or entity factory; providers wrap use cases.
-- melos.yaml = BAD SMELL (deleted in melos 7.0.0). Native pub workspaces are the base; melos is OPTIONAL (single-package script runner only).
+- melos.yaml = BAD SMELL (deleted in melos 7.0.0). Native pub workspaces are the base; melos is REQUIRED as the canonical script contract — `melos run <task>` is the one entry point CI and agents call (never a boundary enforcer — that is dart_arch_test).
 - SDK constraint: '>=3.10.0 <4.0.0' in every pubspec.
 - One class per file; ONE hand-written barrel per package (`lib/<pkg>.dart` re-exports `lib/src/`; never import `src/` across packages). dart format / dart analyze / dart test only. Dart-first editing: no Python/sed rewriting .dart files.
 - TERSE DOCS: `///` on declarations and their public members (1-2 lines, what+why, never how) — **never as a file header** (file-level `///` requires a `library;` — barrels only) — dartdoc/pub.dev-ready; `public_member_api_docs` lint ON. Use cases MUST be documented.
@@ -30,7 +30,7 @@
 - D.R.Y.: single source of truth — doctrine lives HERE; project READMEs/AGENTS.md reference rules, never restate them (a second copy is a second truth). Repo AGENTS.md = that repo's deviations + local wiring only; READMEs orient, carry no rules/architecture. BACKLOG = terse queue (one unique actionable item each, automation-pick-able), not a warstory/metanarrative diary; keen decisions live in CHANGELOG; keep-your-footing knowledge in AGENTS.md.
 
 ## STACK (pinned)
-- fpdart ^1.2.0 (pinned; 2.0-dev is off-limits) · equatable latest stable major (3.x today; NOT pinned — a pin means a documented exclusion, never a snapshot) · shouldly (assertions, "should be" idiom) · mocktail (mocks, usecase seam only) · drift + drift_dev + build_runner (sqlite3 ORM; SANCTIONED codegen) · sembast (pure-Dart file store) · flutter_riverpod (plain providers) · go_router (nav). Dev/tests: dart_arch_test (architecture/boundary tests). Optional: melos ^8.8.0 (single-package scripts only).
+- fpdart ^1.2.0 (pinned; 2.0-dev is off-limits) · equatable latest stable major (3.x today; NOT pinned — a pin means a documented exclusion, never a snapshot) · shouldly (assertions, "should be" idiom) · mocktail (mocks, usecase seam only) · drift + drift_dev + build_runner (sqlite3 ORM; SANCTIONED codegen) · sembast (pure-Dart file store) · flutter_riverpod (plain providers) · go_router (nav). Dev/tests: dart_arch_test (architecture/boundary tests). Required: melos ^8.8.0 (canonical script contract — `melos run` is the CI/agent entry point).
 
 ## BANNED
 - freezed, json_serializable, riverpod_generator, retrofit, get_it/injectable, raw sqlite3 without drift.
@@ -38,8 +38,8 @@
 
 ## WORKSPACE / BOUNDARIES
 - Root pubspec: `workspace:` lists every package; each sets `resolution: workspace`; `dart pub get`. Workspaces are per-repo; they do NOT span repos.
-- melos is OPTIONAL — best as a single-package script runner (root `useRootAsPackage: true`); do NOT use workspace orchestration over piles of unpublished packages (breaks hard, enforces no boundaries).
-- Boundaries: `dart_arch_test` test = CI HARD gate for package-boundary direction + cycle-free (real analyzer resolution over the WHOLE workspace, package: URIs; write PLAIN package: URI assertions for direction — the glob DSL strips package names and is blind across members). Root for buildGraph = Directory.current + walk-up to `workspace:` pubspec (NEVER Platform.script — kernel dir → empty graph → vacuously green). import_rules optional/as-you-type only (reads imports only, misses workspace members). melos.yaml still banned (deleted in 7.0.0; 8.x uses root `melos:` key if opted in — `exec.command` per-package since 8.0.0; `melos analyze` floor ^8.8.0).
+- melos is REQUIRED as the script contract (root `useRootAsPackage: true`; `melos run` = canonical CI/agent entry point); do NOT use it for workspace orchestration over piles of unpublished packages (breaks hard) and never for boundary enforcement (dart_arch_test owns that).
+- Boundaries: `dart_arch_test` test = CI HARD gate for package-boundary direction + cycle-free (real analyzer resolution over the WHOLE workspace, package: URIs; write PLAIN package: URI assertions for direction — the glob DSL strips package names and is blind across members). Root for buildGraph = Directory.current + walk-up to `workspace:` pubspec (NEVER Platform.script — kernel dir → empty graph → vacuously green). import_rules optional/as-you-type only (reads imports only, misses workspace members). melos.yaml still banned (deleted in 7.0.0; 8.x uses the root `melos:` key — `exec.command` per-package since 8.0.0; `melos analyze` floor ^8.8.0).
 
 ## TOPOLOGY
 - A) One workspace repo — small / single-delivery (CLI only). B) Core repo (domain + usecases + datasource adapters + CLI, pure Dart, NO Flutter) + separate UI repo (Flutter; git dep on core + dependency_overrides for dev; platform bits like path_provider resolved in UI composition root). C) Single-package repo — STILL a melos workspace: the package is the workspace root (`melos: useRootAsPackage: true`), scripts in its own pubspec, no melos.yaml; that buys `melos run` plus the `melos version`/`melos publish` release flow.
@@ -66,10 +66,10 @@
 - PITFALL: don't move a widget under a stationary cursor if you rely on MouseRegion.onExit (flutter/flutter#44957 — onExit silently dropped in ListView; keep the button stationary, render warnings below).
 
 ## BOOTSTRAP (new project)
-1 read compact (or full) bible; 2 root pubspec with workspace: (no melos.yaml; melos optional); 3 packages: domain / usecases / 2 datasource adapters / app; 4 resolution: workspace + dart pub get; 5 contracts first (entities, failures, I*Repository, datasource interfaces); 6 at least two repository adapters + contract suite from day one; 7 dart_arch_test boundary test (onion + cycle-free) as part of dart test; 8 lints incl. public_member_api_docs + todo:error; dart analyze --fatal-infos --fatal-warnings clean (ZERO diagnostics of any severity); 9 first usecase (documented, business-param call, named params) + both-sides test; 10 CI runs analyze + test (boundary included) every PR.
+1 read compact (or full) bible; 2 root pubspec with workspace: + melos:` scripts block (no melos.yaml; melos REQUIRED — §9.2); 3 packages: domain / usecases / 2 datasource adapters / app; 4 resolution: workspace + dart pub get; 5 contracts first (entities, failures, I*Repository, datasource interfaces); 6 at least two repository adapters + contract suite from day one; 7 lints incl. public_member_api_docs + todo:error; dart analyze --fatal-infos --fatal-warnings clean (ZERO diagnostics of any severity); 8 first usecase (documented, business-param call, named params) + both-sides test; 9 CI runs analyze + test every PR; 10 dart_arch_test boundary test (direction + cycle-free, over the resolved graph) as part of dart test.
 
 ## REVIEW (checklist)
-- Inward dependencies (dart_arch_test boundary, not melos)? Throw/try/catch outside UI ring? Entities immutable + equatable? >=2 repository adapters + contract suite? Failure layers mapped, no leakage? Error style declared (tuples vs exceptions)? drift the only ORM? Unapproved builders? shouldly only, GWT names, both Either sides? No melos.yaml (melos single-package scripts only)? analyze (fatal flags) + test green (boundary included), ZERO diagnostics any severity? No TODO/FIXME (roadmap doc)? Ignores per-line only? Public API documented (<=2 lines, use cases included)? Params business-shaped, no cargo? Named params (except ref/message/value)? One barrel per package, no src/ imports? D.R.Y. (no restated rules in READMEs/AGENTS/comments; BACKLOG a terse queue, not a warstory diary)? GUI change ships widget/integration coverage in CI? Marionette debug-only?
+- Inward dependencies (dart_arch_test boundary, not melos)? Throw/try/catch outside UI ring? Entities immutable + equatable? >=2 repository adapters + contract suite? Failure layers mapped, no leakage? Error style declared (tuples vs exceptions)? drift the only ORM? Unapproved builders? shouldly only, GWT names, both Either sides? No melos.yaml? Melos scripts wired — `melos run` is the CI/agent entry point (scripts, never boundary enforcement)? analyze (fatal flags) + test green (boundary included), ZERO diagnostics any severity? No TODO/FIXME (roadmap doc)? Ignores per-line only? Public API documented (<=2 lines, use cases included)? Params business-shaped, no cargo? Named params (except ref/message/value)? One barrel per package, no src/ imports? D.R.Y. (no restated rules in READMEs/AGENTS/comments; BACKLOG a terse queue, not a warstory diary)? GUI change ships widget/integration coverage in CI? Marionette debug-only?
 
 ## CONFIG & SETTINGS (§13)
 - CLI/TUI apps must support 3-layer config precedence: (1) `--config`/`-c` flag trumps all, (2) env vars, (3) default config file. The `--config` flag is the *only* hard-error path (file missing → exit non-zero).
@@ -80,9 +80,9 @@
 - CI-gated: tests prove every precedence layer (env trumps default, `--config` trumps env, missing `--config` exits non-zero).
 
 ## DECISIONS (settled; §11 = human change record, doctrine wins)
-- Error style: declared per package (barrel + README + AGENTS.md on deviation); FP-style tuples are the default, plain exceptions only at the UI ring.
+- Error style: declared per package (barrel + README + AGENTS.md on deviation); FP-style tuples are the default, plain exceptions only at the outermost ring (Flutter UI or CLI/TUI composition root).
 - State: Riverpod (plain providers). DI: manual constructor injection. Nav: go_router. JSON codegen: banned for now. License: MIT. Wiki: auto-synced by wiki-sync GitHub Action on every push to main.
-- Melos: OPTIONAL, single-package script runner only. Package boundaries: dart_arch_test test (resolved import graph). import_rules is not the gate.
+- Melos: REQUIRED as the canonical script contract (`melos run` = one CI/agent entry point); never boundary enforcement (dart_arch_test owns that). Package boundaries: dart_arch_test test (resolved import graph). import_rules is not the gate.
 - Docs: terse `///` on declarations and their members (1-2 lines, what+why), **never as a file header** (file-level `///` requires a `library;` — barrels only); public_member_api_docs ON; use cases documented. Params: named except single positional ref/message/value; usecase call() = discrete business params, never cargo objects. Barrels: one hand-written per package (lib/<pkg>.dart), never import src/ across packages. Flutter follows Flutter conventions.
 
 ## LINKS

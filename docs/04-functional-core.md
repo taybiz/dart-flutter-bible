@@ -94,13 +94,14 @@ final result = await Either.Do(
 
   "Adapter boundary" is a **line, not a zone**. The only try/catch-shaped code an adapter may contain is `TaskEither.tryCatch` (or `Either.tryCatch`) wrapping the third-party call itself, in the public adapter method; an exception never crosses the adapter's public API. Hand-rolled `try/catch` for imperative control flow inside an adapter is a violation — the adapter does not get a pass on the exception rule, it *owns the conversion seam* precisely because it is the code touching the throwing library.
 
-### 4.6 Where the chain ends: `.run()` at the public seam
+### 4.6 Where the chain ends: the public seam
 
-TaskEither is the **internal** composition type. The **public seam is `Future<Either<Failure, T>>`** — repository contract methods and use case `call()` signatures are `Future<Either<...>>`, never `TaskEither<...>`.
+TaskEither is the **internal** composition type. The **default** public seam is `Future<Either<Failure, T>>` — repository contract methods and use case `call()` signatures are `Future<Either<...>>`, never `TaskEither<...>`.
 
-- **`.run()` terminates the chain at the public method boundary, inside the implementation.** A use case composes with TaskEither internally (`flatMap`, Do-notation, `tryCatch` at the adapter) and the last thing its `call()` does is `.run()` (or `await ... .run()`), returning the plain `Future<Either<...>>`.
-- **Consumers (UI, CLI, other use cases) never build or run TaskEither chains.** They await a `Future<Either<...>>` and `fold` it. This is the termination the user wants: fpdart's laziness dies in the core, not in the widget tree. (Consumers will still import fpdart to `fold`/`getOrElse` an `Either` — that is expected and fine; what they never touch is chain-building, laziness, and `.run()`.)
-- **Why:** laziness leaks out of the core, it becomes a UI problem (forgetting `.run()`, mutating captured lists inside lazy callbacks, debugging chains that "did nothing"). Keep `.run()` inside the layer that built the chain; the boundary is the type change `TaskEither → Future<Either>`.
+- **Default: `.run()` terminates the chain at the public method boundary, inside the implementation.** A use case composes with TaskEither internally (`flatMap`, Do-notation, `tryCatch` at the adapter) and the last thing its `call()` does is `.run()` (or `await ... .run()`), returning the plain `Future<Either<...>>`.
+- **Declared exception (§4.9): a package may hand the consumer the unrun `TaskEither` instead.** A CLI or Flutter consumer is then free to finish the chain itself (`flatMap`, Do-notation) and `.run()` it, *provided the package declares the style at the seam* — seeing a tuple is how the consumer knows to `.run()` it. This is not laziness escaping the core; it is a deliberate, documented seam.
+- **What consumers never do: compose chains *across* a seam.** No consumer `flatMap`s a repository's chain into a chain a different package owns, smuggling layered lazy logic past the boundary. Chain-building through fpdart starts fresh in the layer that presents the tuple; the consumer runs the chain it was handed (or `fold`s the `Future<Either>` default).
+- **Why the default stands:** laziness leaks out of the core, it becomes a UI problem (forgetting `.run()`, mutating captured lists inside lazy callbacks, debugging chains that "did nothing"). Any departure from the default must be declared (§4.9), never silent.
 
 ### 4.7 Equality: equatable
 
@@ -109,6 +110,8 @@ Every entity and value object `extends Equatable` with `List<Object?> get props 
 ### 4.8 The exception rule, stated once, loudly
 
 **Inside the bulls-eye: no `throw`, no `try/catch` (except `tryCatch` conversion at adapter boundaries), no `on Exception`.** The UI ring is the *only* place exceptions are raised or caught, and even there they should be converted into UI state as fast as possible.
+
+The "outermost ring" is wherever a delivery mechanism meets the outside world — the Flutter widget boundary (§8.1) *or* a CLI/TUI's composition root and `bin/` entrypoint. A headless CLI has no Flutter "UI ring"; its `bin/` `main` *is* the ring. A package that legitimately presents plain exceptions (§4.9) is that ring, not an exception to this section.
 
 ### 4.9 Declare the error style, loudly
 

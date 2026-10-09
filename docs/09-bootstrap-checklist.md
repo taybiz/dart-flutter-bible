@@ -1,7 +1,7 @@
 # 9. Bootstrap Checklist (new project)
 
 1. **9.1** — Read this bible. (No, really — read it.)
-2. **9.2** — Scaffold the workspace: root `pubspec.yaml` with a `workspace:` list; **no `melos.yaml`** (melos is optional — §2.1).
+2. **9.2** — Scaffold the workspace: root `pubspec.yaml` with a `workspace:` list and a **`melos:` scripts block**; **no `melos.yaml`** (melos is required — §2.1).
 3. **9.3** — Create packages: `*_domain`, `*_usecases`, two `*_datasource_*` packages (one of which may be in-memory), and the app package.
 4. **9.4** — Set `resolution: workspace` in every package; `dart pub get`.
 5. **9.5** — Define the domain contracts first (entities, failures, `I*Repository`, datasource interfaces). Nothing else until these compile.

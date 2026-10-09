@@ -4,17 +4,24 @@
 |---|---|
 | Dart SDK | `sdk: '>=3.10.0 <4.0.0'` — floor 3.10, never 4.x |
 | Package manager | pub (Dart 3.5+ **pub workspaces**) |
-| Monorepo | Native **pub workspaces** (`workspace:` + `resolution: workspace`); **melos optional** (script runner only) |
+| Monorepo | Native **pub workspaces** (`workspace:` + `resolution: workspace`); **melos required** — the canonical script contract (`melos run` = the CI/agent entry point) |
 | Formatter | `dart format` only |
 | Analyzer | `dart analyze` — **zero diagnostics of any severity** (errors, warnings, infos) before any commit; gate = `dart analyze --fatal-infos --fatal-warnings` (§2 "Analyzer: zero tolerance") |
 | Docs | Terse `///` on declarations and their public members (1–2 lines, what+why) — **never as a file header** — dartdoc/pub.dev-ready |
 | Tests | `dart test` |
 
-### 2.1 Melos: optional — a script runner, not the orchestrator
+### 2.1 Melos: the canonical script contract (required)
 
-Melos is **optional**, not doctrine. Its best modern use is **single-package script management**: one `melos:` scripts block in a root that *is* the package (`useRootAsPackage: true`). For a **pile of packages never meant to be published individually to pub.dev, stop leaning on melos workspace orchestration** — the more you lean on package filters and cross-package `exec`, the harder it breaks, and it enforces nothing about boundary direction anyway. Native pub workspaces carry the multi-package structure; melos does not need to. A repo holding a single package is the same shape with the package *as* the workspace root — see §3 Topology C.
+Melos is **required** — not because it orchestrates packages (it doesn't; `dart_arch_test` enforces boundaries, §2.9), but because it is the repo's single, canonical **script contract** that CI, agents, and humans all call identically. Every repo — workspace (Topology A/B) or single package (Topology C) — declares its tasks in one `melos:` block, and `melos run <task>` is *the* entry point.
 
-A `melos.yaml` file remains a bad smell: it was deleted in **melos 7.0.0** in favor of the root `pubspec.yaml`; a repo still carrying one is on 6.x or earlier and should be migrated. If you opt into melos, config lives in the **root `pubspec.yaml`** under a `melos:` key.
+In an agent-run world it earns this place because:
+- **One command, one behavior.** `melos run analyze` / `melos run test` behave identically in CI and locally. CI stops carrying a bespoke shell line; an agent stops reconstructing per-package invocations from scratch.
+- **Per-package correctness for free.** `exec.command` runs each member with its own cwd and package filter — exactly what a hand-rolled `dart run` loop over packages gets wrong (wrong cwd, wrong order, drifted from CI).
+- **Ordering that must hold.** Codegen-before-analyze (drift's `build_runner`), clean-before-build, publish order — scripted once, so a green CI is not a lucky ordering.
+- **Script-rot detection.** CI calls `melos run analyze`; a script that rots fails the build instead of quietly drifting.
+- **Release flow.** `melos version` / `melos publish` give a deterministic changelog/tag/publish pipeline, single-package topologies included (§3.3).
+
+What melos is **not**: the orchestrator. It enforces no boundary direction — that is `dart_arch_test`'s job (§2.9). The `melos.yaml` file remains a bad smell: it was deleted in **melos 7.0.0** in favor of the root `pubspec.yaml`; a repo still carrying one is on 6.x or earlier and should be migrated. Config lives in the **root `pubspec.yaml`** under a `melos:` key.
 
 Root `pubspec.yaml`:
 
@@ -54,7 +61,7 @@ environment:
 resolution: workspace
 ```
 
-Notes — only if you opted into melos:
+Notes:
 - The `workspace:` list is explicit — globs are not supported yet; list every package.
 - `melos bootstrap` links local packages without `pubspec_overrides.yaml` (workspaces replaced that mechanism).
 - Scripts live in the `melos:` key; run with `melos run <name>`. Since melos 8 the per-package form is **`exec.command:`** (the old `run:` + `exec:` split is a config error).
