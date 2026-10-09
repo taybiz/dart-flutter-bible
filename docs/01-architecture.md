@@ -10,13 +10,14 @@
         │  │  ┌──────────────────────────────┐  │  │
         │  │  │  Domain (entities)           │  │  │  THE CENTER
         │  │  │  pure: no I/O, no packages    │  │  │  unit-test here
-        │  │  │  except equatable/fpdart      │  │  │
+        │  │  │  except equatable/fpdart*     │  │  │
         │  │  └──────────────────────────────┘  │  │
         │  └────────────────────────────────────┘  │
         │  Datasource adapters live OUTSIDE        │
         │  (drift/sqlite, sembast, http, memory)   │
         └──────────────────────────────────────────┘
 ```
+\* `crypto` is additionally allowed in the domain **for content hashing only** — a stable, byte-identical digest that `equatable.hashCode` can't provide (see §3.5). It never grants general widening.
 
 ### 1.1 The Four Laws
 
