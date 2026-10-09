@@ -14,3 +14,22 @@ dev_dependencies:
   test: ^1.25.0
   dart_arch_test: ^0.3.1
   path: ^1.9.0
+  melos: ^8.8.0
+
+# Single-package melos workspace (Topology C): this package IS the root, so
+# the scripts contract lives here. CI calls `dart run melos run ...`, keeping
+# local and CI identical (see §2.1).
+melos:
+  useRootAsPackage: true
+  scripts:
+    analyze:
+      run: dart analyze --fatal-infos --fatal-warnings
+    test:
+      run: dart test
+    format:check:
+      run: dart format --output=none --set-exit-if-changed .
+    verify:
+      run: |
+        dart format --output=none --set-exit-if-changed .
+        dart analyze --fatal-infos --fatal-warnings
+        dart test
