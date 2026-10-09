@@ -68,6 +68,52 @@ Notes:
 - Pin `^8.8.0`: 8.0.0 shipped with no `melos analyze` command (restored 8.1.0, tightened to `--fatal-infos` in 8.2.0). The analyze gate is spelled out as a script rather than trusting the bare command for exactly this reason.
 - **Melos enforces no boundary rules.** Dependency direction is the responsibility of a `dart_arch_test` architecture test (below) — never a melos script.
 
+**A field guide to the scripts that earn their keep.** Now that the `melos:` block is the contract, start with these — they are the ones that actually repay the setup. The meta-script is the point: `melos run verify` alone is local/CI parity — same command, same ordering, same exit codes.
+
+Single-package repo (`useRootAsPackage: true` — Topology C):
+
+```yaml
+melos:
+  useRootAsPackage: true
+  scripts:
+    # Codegen must run before the gates: a fresh checkout isn't analyzable until
+    # drift's build_runner (the sanctioned builder, §7) has generated the row classes.
+    gen:
+      run: dart run build_runner build --delete-conflicting-outputs
+    analyze:
+      run: dart analyze --fatal-infos --fatal-warnings
+    test:
+      run: dart test
+    # CI gate that the tree is formatted (doctrine: dart format is the only formatter).
+    format:check:
+      run: dart format --output=none --set-exit-if-changed .
+    # One-command parity check — gen -> format -> analyze -> test, in that order.
+    verify:
+      run: |
+        dart format --output=none --set-exit-if-changed .
+        dart analyze --fatal-infos --fatal-warnings
+        dart test
+```
+
+Multi-package workspace (Topology A/B): the same tasks fan out per member, so each package runs with its own cwd and package filter — exactly what a hand-rolled loop over packages gets wrong:
+
+```yaml
+melos:
+  scripts:
+    analyze:
+      exec:
+        command: dart analyze --fatal-infos --fatal-warnings
+      packageFilters:
+        ignore: [example]
+    test:
+      exec:
+        command: dart test
+      packageFilters:
+        dirExists: test
+```
+
+CI calls these (`dart run melos run verify`, or `analyze` + `test` as separate steps), never raw per-package commands, so the documented ordering and flags *are* the build. Don't script what melos already does natively: `melos bootstrap` (link member packages), `melos clean`, and for a published package the release flow `melos version` / `melos publish`. `exec.command` is the per-package form since melos 8.0.0; see `example/bible_samples` for a live, CI-tested `melos:` block.
+
 ### 2.2 Analyzer: zero tolerance
 
 "Clean" means **zero diagnostics — errors, warnings, and infos alike.** A report of

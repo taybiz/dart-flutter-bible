@@ -17,8 +17,8 @@ jobs:
         run: dart pub get
         working-directory: example
       - name: Analyze
-        run: dart analyze --fatal-infos --fatal-warnings
+        run: dart run melos run analyze
         working-directory: example
       - name: Test
-        run: dart test
+        run: dart run melos run test
         working-directory: example
