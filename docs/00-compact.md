@@ -1,6 +1,6 @@
 > ⚠️ **BOT-ONLY FILE — humans, stay out.**
 > This is the compact, token-cheap ingest blob for agents. **Do not hand-edit it.**
-> Edit the human docs (`docs/01`–`docs/12`), then regenerate this blob
+> Edit the human docs (`docs/01`–`docs/13`), then regenerate this blob
 > (ask an agent: "regenerate docs/00-compact.md from the other docs/ files").
 > The full sections are authoritative; this blob is derived and drifts the moment it's hand-edited.
 
@@ -69,6 +69,14 @@
 ## REVIEW (checklist)
 - Inward dependencies (dart_arch_test boundary, not melos)? Throw/try/catch outside UI ring? Entities immutable + equatable? >=2 repository adapters + contract suite? Failure layers mapped, no leakage? Error style declared (tuples vs exceptions)? drift the only ORM? Unapproved builders? shouldly only, GWT names, both Either sides? No melos.yaml (melos single-package scripts only)? analyze (fatal flags) + test green (boundary included), ZERO diagnostics any severity? No TODO/FIXME (roadmap doc)? Ignores per-line only? Public API documented (<=2 lines, use cases included)? Params business-shaped, no cargo? Named params (except ref/message/value)? One barrel per package, no src/ imports? D.R.Y. (no restated rules in READMEs/AGENTS/comments; BACKLOG a terse queue, not a warstory diary)?
 
+## CONFIG & SETTINGS (§13)
+- CLI/TUI apps must support 3-layer config precedence: (1) `--config`/`-c` flag trumps all, (2) env vars, (3) default config file. The `--config` flag is the *only* hard-error path (file missing → exit non-zero).
+- Default config path follows OS conventions: Linux `$XDG_CONFIG_HOME/<app>/config` or `$HOME/.config/`, macOS `~/Library/Application Support/`, Windows `%APPDATA%\<app>\config`.
+- YAML default format (`package:yaml`); schema documented in README with a `config.example.yaml` in the repo.
+- Read sources in reverse precedence order (default → env → explicit) and merge; absent sources skip, never crash.
+- Distinguish config (startup, hand-edited, one-shot) from app settings (runtime, UI-managed, reactive). Secrets never in config files → env vars or platform secret stores.
+- CI-gated: tests prove every precedence layer (env trumps default, `--config` trumps env, missing `--config` exits non-zero).
+
 ## DECISIONS (settled; §11 = human change record, doctrine wins)
 - Error style: declared per package (barrel + README + AGENTS.md on deviation); FP-style tuples are the default, plain exceptions only at the UI ring.
 - State: Riverpod (plain providers). DI: manual constructor injection. Nav: go_router. JSON codegen: banned for now. License: MIT. Wiki: auto-synced by wiki-sync GitHub Action on every push to main.
@@ -78,4 +86,4 @@
 ## LINKS
 - Repo: https://github.com/taybiz/dart-flutter-bible · Wiki: https://github.com/taybiz/dart-flutter-bible/wiki
 - Examples: `example/` — bible_samples package, CI-tested (dart analyze --fatal-infos --fatal-warnings + dart test on every push)
-- Full docs: docs/01-architecture.md .. docs/12-sources.md (this blob = docs/00-compact.md)
+- Full docs: docs/01-architecture.md .. docs/13-config-and-settings.md (this blob = docs/00-compact.md)
