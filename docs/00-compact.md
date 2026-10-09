@@ -54,6 +54,7 @@
 ## TESTING
 - shouldly: `x.should.be(...)`; never mix expect(). Names: Given/When/Then.
 - Layer matrix: domain = unit, no mocks; usecases = mocktail on interfaces we own; adapters = real in-memory doubles; contract suite on every adapter; widget tests at UI.
+- GUI three layers: widget tests (headless, deterministic) · integration_test driving the real app in CI (the GUI GATE — `flutter test integration_test/...`) · marionette_flutter + marionette_mcp agent-interaction (dev-time only, debug-only binding, NOT a gate).
 - Every usecase test covers BOTH Either sides (Right happy path + each Left).
 - PITFALLS: fpdart `isRight()`/`isLeft()` are METHODS (never property); no `beTrue`/`beFalse` in shouldly — use `be(true)`/`be(false)` (pin shouldly ^0.5.0+1); `getOrElse`/`fold` callbacks take the Left value (`(_) =>`, never `() =>`); no absolute paths in tests (HOME env or systemTemp + path pkg); extract Right via `getOrElse` after asserting `isRight()`; fpdart chains are LAZY — nothing runs until `.run()`, never mutate a captured list inside a lazy callback and iterate it eagerly (thread through the chain).
 
@@ -61,13 +62,14 @@
 - Riverpod plain providers, NO generator. Manual constructor injection; composition root in the app.
 - **Riverpod NEVER enters the core** — zero `flutter_riverpod` in domain/usecases/datasources; core stays pure Dart, headless-buildable. If a core package "needs" a provider, the design is wrong (use case is the seam).
 - Widget job: call usecase -> render state. Exceptions caught at the boundary, converted to UI state, never swallowed.
+- GUI gate = integration_test in CI. Marionette = dev-time agent layer only: `MarionetteBinding` init under kDebugMode ONLY (no release surface); marionette_mcp is a dev tool, never an app dependency.
 - PITFALL: don't move a widget under a stationary cursor if you rely on MouseRegion.onExit (flutter/flutter#44957 — onExit silently dropped in ListView; keep the button stationary, render warnings below).
 
 ## BOOTSTRAP (new project)
 1 read compact (or full) bible; 2 root pubspec with workspace: (no melos.yaml; melos optional); 3 packages: domain / usecases / 2 datasource adapters / app; 4 resolution: workspace + dart pub get; 5 contracts first (entities, failures, I*Repository, datasource interfaces); 6 at least two repository adapters + contract suite from day one; 7 dart_arch_test boundary test (onion + cycle-free) as part of dart test; 8 lints incl. public_member_api_docs + todo:error; dart analyze --fatal-infos --fatal-warnings clean (ZERO diagnostics of any severity); 9 first usecase (documented, business-param call, named params) + both-sides test; 10 CI runs analyze + test (boundary included) every PR.
 
 ## REVIEW (checklist)
-- Inward dependencies (dart_arch_test boundary, not melos)? Throw/try/catch outside UI ring? Entities immutable + equatable? >=2 repository adapters + contract suite? Failure layers mapped, no leakage? Error style declared (tuples vs exceptions)? drift the only ORM? Unapproved builders? shouldly only, GWT names, both Either sides? No melos.yaml (melos single-package scripts only)? analyze (fatal flags) + test green (boundary included), ZERO diagnostics any severity? No TODO/FIXME (roadmap doc)? Ignores per-line only? Public API documented (<=2 lines, use cases included)? Params business-shaped, no cargo? Named params (except ref/message/value)? One barrel per package, no src/ imports? D.R.Y. (no restated rules in READMEs/AGENTS/comments; BACKLOG a terse queue, not a warstory diary)?
+- Inward dependencies (dart_arch_test boundary, not melos)? Throw/try/catch outside UI ring? Entities immutable + equatable? >=2 repository adapters + contract suite? Failure layers mapped, no leakage? Error style declared (tuples vs exceptions)? drift the only ORM? Unapproved builders? shouldly only, GWT names, both Either sides? No melos.yaml (melos single-package scripts only)? analyze (fatal flags) + test green (boundary included), ZERO diagnostics any severity? No TODO/FIXME (roadmap doc)? Ignores per-line only? Public API documented (<=2 lines, use cases included)? Params business-shaped, no cargo? Named params (except ref/message/value)? One barrel per package, no src/ imports? D.R.Y. (no restated rules in READMEs/AGENTS/comments; BACKLOG a terse queue, not a warstory diary)? GUI change ships widget/integration coverage in CI? Marionette debug-only?
 
 ## CONFIG & SETTINGS (§13)
 - CLI/TUI apps must support 3-layer config precedence: (1) `--config`/`-c` flag trumps all, (2) env vars, (3) default config file. The `--config` flag is the *only* hard-error path (file missing → exit non-zero).

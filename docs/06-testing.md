@@ -56,4 +56,18 @@ Things that have actually bitten people, so they bite no one twice:
 - **Never hardcode absolute paths in tests** — no home directories, no `/tmp/foo` literals. Use `Platform.environment['HOME']` (or `Directory.systemTemp`) plus the `path` package. Hardcoded paths are the leading cause of "tests pass on my machine, fail in CI."
 - **fpdart chains are lazy — nothing runs until `.run()`.** Building a `TaskEither` chain executes zero callbacks; only `.run()` (or `await`) drives it. The classic bug: mutate a captured list inside a `flatMap` callback, then iterate that list *after* building the chain but before `.run()` — the loop sees the pre-mutation list (ResolveSchema-style bugs: every call returns `[]`). If a use case must collect intermediate results, thread them through the chain (`.flatMap((acc) => ...)`), never a captured mutable list.
 - **Prefer extracting the Right value via `getOrElse` after asserting `isRight()`** — keeps the test readable and the failure message useful.
----
+
+### 6.6 GUI testing: the three layers
+
+A GUI is tested at three levels, and they are **not interchangeable**. An agent driving a *running* app is never a repeatable gate — it is the accelerant, not the test.
+
+| Layer | What runs | Deterministic in CI? | Purpose |
+|---|---|---|---|
+| Widget tests | `flutter test test/` — pump widgets headless | Yes, fast, hermetic | Assert rendered state per widget/provider |
+| Integration tests | `flutter test integration_test/…` — drive the *real* app | **Yes — the GUI gate** | End-to-end: real widgets, real navigation, real adapter wiring |
+| Agent interaction | `marionette_flutter` + `marionette_mcp` driving the running app over the VM service | **No** — agent-in-the-loop | Dev-time exploration, smoke-testing, debugging a live GUI |
+
+Rules:
+- **The gate is deterministic (§8.5).** A GUI change ships with widget and/or integration coverage that runs in CI (`flutter test integration_test/...`). Marionette decides *what* to tap; that is useful in development and useless for a green build. Never an agent-driven test as the gate.
+- Contract tests never live in the UI repo (§3); the same separation holds here — integration tests exercise the use-case seam end-to-end, they do not re-test core.
+|---

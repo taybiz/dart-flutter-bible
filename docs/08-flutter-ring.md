@@ -56,4 +56,21 @@ class AccountView extends ConsumerWidget {
 - Widget tests at `apps/thing_flutter/test` — pump with a test provider container (real in-memory adapters, not mocks, where possible), assert with shouldly.
 - `NativeDatabase.memory()` and `databaseFactoryMemory` work in widget tests too — no platform-channel stubbing needed for the persistence path.
 
+- **Integration tests are the deterministic GUI gate (§6.6).** `flutter test integration_test/…` drives the real app end-to-end in CI — real widgets, real navigation, real adapter wiring — and is required on GUI-changing work. Widget tests alone are not the gate.
+
+- **Marionette is the dev-time agent layer, debug-only.** Initialize `MarionetteBinding` **only** under `kDebugMode` — no release surface:
+
+```dart
+void main() {
+  if (kDebugMode) {
+    MarionetteBinding.ensureInitialized();
+  } else {
+    WidgetsFlutterBinding.ensureInitialized();
+  }
+  runApp(const MyApp());
+}
+```
+
+  `marionette_flutter` is a real UI-ring dependency; `marionette_mcp` (the MCP server) is a **dev tool** — `dart pub global activate marionette_mcp`, never an app dependency. It connects an agent to the running app over the VM-service URI to inspect/`tap`/`enter_text`/`take_screenshots`/`get_logs` for smoke-testing (§6.6). Custom design systems need a `MarionetteConfiguration` before the agent can see bespoke buttons/fields. It is *not* the gate.
+
 ---
