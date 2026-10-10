@@ -10,3 +10,4 @@
 8. **9.8** — Write the first use case — terse `///` docs (≤2 lines), business-param `call()`, named params — plus its mocktail test (both Either sides).
 9. **9.9** — Commit. CI runs `dart analyze --fatal-infos --fatal-warnings` + `dart test` on every PR.
 10. **9.10** — Add the **`dart_arch_test` boundary test** (§2.9) — package-aware assertions over the resolved import graph (direction) + cycle-freedom across the workspace. It is a plain `test()`, so CI already runs it with everything else and the boundary is machine-checked before a cross-layer import can exist.
+11. **9.11** — Create the operating docs from the **templates** (`templates/` in the bible): copy `AGENTS-<topology>.md` → `AGENTS.md`, plus `BACKLOG.md` and `CHANGELOG.md`, fill in the placeholders, delete any empty "Deviations" stub. These are skeleton + references, never the doctrine restated (§1.3).
