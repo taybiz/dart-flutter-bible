@@ -36,6 +36,10 @@ resolve in the UI's composition root, never in core packages.
 ## Deviations from the bible (rare — keep this list empty unless deliberate)
 
 - _None yet._
+  - Note: a deviation is only "deliberate" when the bible is vague or wrong and
+    this repo must live with the divergence (bible §1.3). A **fixable defect** —
+    code clearly in the wrong — is a `BACKLOG.md` item to fix, never a deviation
+    to accept.
 
 ## Housekeeping
 

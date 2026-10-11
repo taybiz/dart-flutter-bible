@@ -52,6 +52,7 @@ Doctrine lives here, in exactly one place. Repo docs (README, AGENTS.md) and cod
 - If a rule already exists, link to it — do not copy it into another doc.
 - Any fact stated twice will drift; when two copies disagree, both are suspect and the fix is deletion, not reconciliation.
 - **Repo docs hold separate jobs so none of them becomes a diary.** `BACKLOG.md` is a queue, not a warstory: one terse entry per unique, actionable item, each pick-up-able whole by automation — never a narrative, rationale, or metanarrative. The keen, non-obvious decisions and the *why* belong in `CHANGELOG.md`; the "keep your footing here" operational knowledge (deviations, local wiring, pitfalls) belongs in `AGENTS.md`. A fact that lands in two of these will drift — move it to its one home, don't restate it.
+- **Deviation triage — a rule–repo conflict is one of two things; decide which and act.** When this repo's code contradicts the bible: if the bible is vague or outright wrong such that the repo **must live with** the divergence, record it in `AGENTS.md` as a deliberate deviation — name the rule and the divergence so every later agent stops fighting it. If the divergence is a **fixable defect** (the code is clearly in the wrong, the fix makes sense), do *not* record it as a deviation — add one terse item to `BACKLOG.md` to fix it. A deviation you can fix is a backlog item, never an accepted divergence.
 
 ### 1.4 The API surface (docs, params, style)
 
