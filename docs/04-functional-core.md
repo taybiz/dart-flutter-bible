@@ -105,7 +105,7 @@ TaskEither is the **internal** composition type. The **default** public seam is 
 
 ### 4.7 Equality: equatable
 
-Every entity and value object `extends Equatable` with `List<Object?> get props => [...]`. This gives value semantics for `==` and `hashCode`, which fpdart pattern matching, testing, and drift row mapping all rely on. Hand-written, no codegen.
+Domain entities and value objects get value semantics for `==` and `hashCode`, which fpdart pattern matching, testing, and drift row mapping all rely on. Use `equatable` where that rule applies — first and foremost your domain entities — rather than hand-written equality. The application form is not prescribed: either `extends Equatable` or, when the class already extends a base, `with EquatableMixin`, always paired with `List<Object?> get props => [...]`. Hand-written, no codegen.
 
 ### 4.8 The exception rule, stated once, loudly
 

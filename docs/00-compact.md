@@ -14,7 +14,7 @@
 - Bulls-eye clean architecture: entities at center; dependencies point INWARD; flow one direction UI -> usecase -> repository -> datasource.
 - Exceptions ONLY at the outermost ring — the Flutter UI boundary or a CLI/TUI's composition root. Everywhere else, failure is a VALUE.
 - fpdart ALWAYS: Either (sync), TaskEither (async), Option (absence). Pin ^1.2.0; NEVER 2.0-dev (Effect rewrite, pre-release). Public seam DEFAULTS to `Future<Either<F,T>>` (`.run()` inside the layer); a package may present the unrun `TaskEither` when it DECLARES the style (§4.9) and the consumer runs it; consumers never compose chains across a seam.
-- equatable on every entity/value object: immutable, const constructors, props list.
+- equatable on domain entities/value objects (either `extends Equatable` or `with EquatableMixin`): immutable, const constructors, props list.
 - Failures: sealed hierarchies PER LAYER (domain / datasource). Datasource failures mapped upward at the repository. switch over failures is exhaustive.
 - tryCatch ONLY at adapter boundaries, converting third-party exceptions -> Left. Adapter boundary = a LINE not a zone: only `TaskEither.tryCatch`/`Either.tryCatch` wrapping the third-party call itself; hand-rolled try/catch inside adapters = VIOLATION. No throw/try/catch in domain or usecases.
 - AT-LEAST-TWO REPOSITORY ADAPTER RULE: every repository contract gets >=2 repository adapters + a shared contract suite run against ALL of them.
