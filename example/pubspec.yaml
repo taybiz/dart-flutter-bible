@@ -33,3 +33,6 @@ melos:
         dart format --output=none --set-exit-if-changed .
         dart analyze --fatal-infos --fatal-warnings
         dart test
+    clean:deep:
+      description: Removes the deep-clean build artifacts.
+      run: melos clean
