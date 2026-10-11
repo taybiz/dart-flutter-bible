@@ -12,6 +12,6 @@ must be actionable whole by a person or automation.
 - [ ] <one actionable item>
 - [ ] <another>
 
-## Done
-
-- [x] <resolved item> — <one-line note>
+Resolved items are **removed with no ceremony** — never parked under a "Done"
+section with a note. A keen, non-obvious decision earns an entry in
+`CHANGELOG.md`; an everyday fix simply disappears from the queue.
