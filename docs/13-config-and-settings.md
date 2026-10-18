@@ -164,7 +164,7 @@ Not all settings belong in a config file. Distinguish:
 
 **Config file** is for startup parameters the user controls before the app runs. **App settings** are runtime preferences the app manages on the user's behalf.
 
-For Flutter apps, use Riverpod providers for reactive settings with sembast or drift backing. For CLI/TUI apps, a plain JSON/YAML file at the same platform-standard path, read on startup and written on change, is sufficient.
+For Flutter apps, expose settings through the app's state layer (§8.2) — Riverpod providers by default — over sembast or drift backing. For CLI/TUI apps, a plain JSON/YAML file at the same platform-standard path, read on startup and written on change, is sufficient.
 
 ### 13.8 Secrets
 

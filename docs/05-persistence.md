@@ -65,7 +65,7 @@ abstract interface class IAccountRepository {
 
 - **Transactional adapters: keep the native client on the txn for the WHOLE `work()` run.** `IUnitOfWork.run(work)` must `await work()` *inside* the native transaction callback (e.g. sembast's `db.transaction((txn) async { await work(); })`) — the adapter's `client` stays the transaction client for the entire run. Resetting to the root client early deadlocks: DB-client operations wait on the still-open transaction (sembast deletes hang).
 - **A wipe of many stores is ONE unit of work, or it isn't atomic.** `clearAll()` across every `I*Repository` runs inside a single `IUnitOfWork`: a mid-clear failure rolls the WHOLE wipe back — never a half-cleared database. Non-transactional stores emulate (JSON: buffer the single doc, write once on success, discard buffer on failure) or sink (memory: synchronous, nothing can fail; `NoOpUnitOfWork`).
-- **Provider invalidation is NOT a wipe.** In the UI ring, invalidating repository providers only rebuilds the adapters — rows in a persistent store survive (sembast/IndexedDB/sqlite). Tests that omit real overrides use in-memory adapters and never see this; regression-test the clear/wipe path with the real persistent adapter in memory mode (e.g. `databaseFactoryMemory`).
+- **State-layer invalidation is NOT a wipe.** In the UI ring, invalidating the adapters (a provider rebuild, a bloc re-creation) only re-wires them — rows in a persistent store survive (sembast/IndexedDB/sqlite). Tests that omit real overrides use in-memory adapters and never see this; regression-test the clear/wipe path with the real persistent adapter in memory mode (e.g. `databaseFactoryMemory`).
 
 ### 5.7 General rules
 

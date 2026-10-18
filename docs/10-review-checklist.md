@@ -6,7 +6,7 @@
 - [ ] **10.4** Every repository contract has **≥2 repository adapters** and runs the contract suite against all of them?
 - [ ] **10.5** Failures typed, layer-mapped (datasource failure ≠ domain failure leaked)?
 - [ ] **10.6** sqlite3 done with drift? Any other ORM/raw sqlite3 in the tree?
-- [ ] **10.7** Any unapproved builder/codegen (freezed, json_serializable, riverpod_generator)? If yes — why?
+- [ ] **10.7** Any unapproved builder/codegen (freezed, json_serializable, `riverpod_generator`, `injectable`)? If yes — why?
 - [ ] **10.8** Tests: shouldly only (no `expect()` mixing), Given/When/Then names, both Either sides covered, mocks only at the use-case seam with mocktail?
 - [ ] **10.9** Every declaration and public member carries a terse `///` doc comment (1–2 lines, what+why)? **No `///` file headers** (that forces a `library;` — barrel files only)? Use cases documented?
 - [ ] **10.10** Use-case `call()` takes discrete business params (`id`, `userName`, …), never cargo/container objects?
@@ -22,3 +22,4 @@
 - [ ] **10.19** Any `// ignore:` is per-line with a reason — no `ignore_for_file` or blanket suppressions?
 - [ ] **10.20** Error style **declared** — the barrel doc comment, the README, and (on any deviation from the `Future<Either<...>>` default) `AGENTS.md` all state whether consumers get FP-style tuples or plain exceptions?
 - [ ] **10.21** GUI-changing work ships with interaction coverage that runs in CI — widget and/or `integration_test` (`flutter test integration_test/…`)? Marionette, if used, has `MarionetteBinding` initialized **only** under `kDebugMode` (no release surface), and `marionette_mcp` stays a dev tool, never an app dependency?
+- [ ] **10.22** State management structured and singular (§8.2): one approach per app; app state in an explicit state layer (provider/cubit/notifier), not widget-local `setState`; no business logic in the state holder; zero state-package imports (`flutter_riverpod`, `flutter_bloc`, …) in the domain ring (domain/usecases/datasources); dependencies resolved at the composition root only?

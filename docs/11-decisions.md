@@ -6,8 +6,8 @@ Doctrine lives in §1–§10 — that is the single source of truth. This sectio
 
 | Decision | Documented in | Why |
 |---|---|---|
-| Riverpod, plain providers, no generator | §8 Flutter Ring | Codegen-free state; manual wiring keeps the no-builders rule intact |
-| Manual constructor injection (no get_it/injectable) | §8 Flutter Ring | Codegen-free; composition root in the app |
+| Structured state management — Riverpod plain providers as the house default, Bloc/Cubit equally valid, one approach per app | §8 Flutter Ring | Doctrine asks for structure and the use-case seam, not a brand; state stays codegen-free and out of the core |
+| Dependencies wired at the composition root — constructor injection by default, a service locator (`get_it`) allowed there for a project that has one, `injectable` codegen out (§7) | §8 Flutter Ring | Structure is explicit wiring in one place; core takes dependencies through constructors, no widget resolves its own |
 | go_router for navigation | §8 Flutter Ring | Boring, one file, works |
 | drift for sqlite3 (only sanctioned builder) | §5 Persistence, §7 Builders | Typed ORM; testable with `NativeDatabase.memory()` |
 | shouldly + mocktail, Given/When/Then names | §6 Testing | "should be" idiom; mocks only at the use-case seam |
@@ -20,7 +20,7 @@ Doctrine lives in §1–§10 — that is the single source of truth. This sectio
 | UnitOfWork | §5 Persistence | Optional `IUnitOfWork? uow` on write methods; reads may take one too; adapters wrap real transactions or gracefully sink |
 | fpdart termination | §4 Functional Core | Public seam **defaults** to `Future<Either<F,T>>` (`.run()` inside the layer); a package may present the unrun `TaskEither` when it declares the style (§4.9), which the consumer then runs; consumers never compose chains across a seam |
 | Error style is declared, never inferred | §4 Functional Core | Two styles are in the estate (FP-style tuples, plain exceptions); the consumer must be told which one they hold. Named in the barrel, the README, and — on any deviation — `AGENTS.md`. Silence is the violation, not the choice |
-| Riverpod never in core | §8 Flutter Ring | Core = pure Dart, zero `flutter_riverpod`; providers wrap use cases in the UI ring only |
+| State-management packages are composition/presentation-ring only — never the domain ring | §8 Flutter Ring | Domain/usecases/datasources stay pure Dart: zero `flutter_riverpod`/`flutter_bloc`; the state layer wraps use cases in the UI ring only |
 | Code placement | §2 Toolchain | Tests first; `example/` (singular — pub.dev convention) for packages or genuine need (e.g., core facade for GUI); never READMEs/prose |
 | Lint-enforced vs review-enforced split | §2 Toolchain | Self-enforce what's automatable; taste rules stay in review |
 | D.R.Y. — single source of truth; project docs (README/AGENTS.md) reference doctrine, never restate it; repo docs hold separate jobs (BACKLOG = terse queue, CHANGELOG = keen decisions & why, AGENTS.md = operational keep-your-footing) | §1 Architecture, §10 Review | A second copy is a second truth; READMEs drift the moment doctrine changes; a backlog that reads like a diary is unreadable by automation |

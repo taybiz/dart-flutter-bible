@@ -88,6 +88,6 @@ The application layer (use cases) **is** the shared public face of the core — 
 - `thing_domain` depends on `equatable` + `fpdart` + `crypto` — and nothing else. `crypto` is a deliberate carve-out for **content hashing**: an entity that needs a stable, byte-identical content digest cannot get it from `equatable.hashCode` (a VM int — 64-bit on the VM, a double under dart2js/WASM — so not run/platform-stable), and pure-Dart SHA-256 has no other spelling than `package:crypto` (pure Dart, no I/O, no platform calls, so it respects the no-I/O rule). Keep `crypto` out of usecases/datasources unless a domain contract needs a digest. Latest stable major (3.x today); not pinned — there is no off-limits line to exclude. No Flutter, no I/O, no JSON package (hand-written serialization or none).
 - `thing_usecases` depends on `thing_domain` + `fpdart`. No datasource implementations, no Flutter.
 - `*_datasource_*` packages depend on `thing_domain` + their storage tech (drift, sembast).
-- `thing_flutter` (the app) depends on use cases + datasource packages + `flutter_riverpod` (or chosen state mgmt — see Open Decisions). It wires adapters into the tree at composition root only.
+- `thing_flutter` (the app) depends on use cases + datasource packages + its state-management package (`flutter_riverpod` by default; `flutter_bloc` or a peer if the project picked one — §8.2). It wires adapters into the tree at the composition root only.
 
 ---

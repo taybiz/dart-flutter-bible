@@ -16,16 +16,16 @@ this repo's deviations + local wiring only, never a restatement of doctrine (§1
 Widgets **only**. It depends on `<thing_core>` via git dependency (`dependency_overrides`
 → local core checkout during cross-repo dev). No domain, no use cases, no datasource
 implementations, no contract tests live here — those are core's job; this repo tests
-its own boundary (providers, widgets).
+its own boundary (the state layer, widgets).
 
 ## Composition root (the one place everything gets wired)
 
 `lib/main.dart` resolves platform bits (`path_provider`, `sqlite3_flutter_libs`) and
-injects adapters into providers here — **never** below the widget layer.
+injects adapters into the app's state layer here (§8.2) — **never** below the widget layer.
 
 - Widgets call use cases; they never import repository, datasource, or entity factories.
 - Exceptions are caught **at this boundary** and converted to UI state — never swallowed.
-- Core stays headless-buildable: zero `flutter_riverpod` in core (bible §8).
+- Core stays headless-buildable: zero state-management package imports (`flutter_riverpod`, `flutter_bloc`, …) in core (bible §8.2).
 
 ## Housekeeping
 

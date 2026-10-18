@@ -7,7 +7,8 @@ We **avoid codegen builders** wherever we can. Generated code hides logic, slows
 | `build_runner` + `drift_dev` | ✅ **The exception.** Drift's ORM earns it. |
 | `freezed` | ❌ Prefer `sealed` classes + records + exhaustive `switch` — Dart 3 does this natively now. |
 | `json_serializable` | ❌ Hand-written `toJson`/`fromJson` (or a mapping function) for the small models we own; drift has its own serialization for rows. |
-| `riverpod_generator` | ❌ Plain providers (`Provider`, `FutureProvider`, `NotifierProvider`) suffice; no annotation codegen. |
+| `riverpod_generator` | ❌ Hand-written providers (`Provider`, `FutureProvider`, `NotifierProvider`) suffice — as do hand-written blocs/cubits, if the app's state layer is Bloc; no annotation codegen. |
+| `injectable` | ❌ DI annotation codegen. Hand-wire at the composition root: constructors, or a plain container (`get_it`) if the project already carries one (§8.2). |
 | `retrofit`/`dio_gen` | ❌ Hand-written HTTP datasource with `tryCatch`. |
 
 Dart 3 replaces the most-tempting builders natively:
