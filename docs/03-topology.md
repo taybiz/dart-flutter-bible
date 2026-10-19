@@ -90,4 +90,13 @@ The application layer (use cases) **is** the shared public face of the core — 
 - `*_datasource_*` packages depend on `thing_domain` + their storage tech (drift, sembast).
 - `thing_flutter` (the app) depends on use cases + datasource packages + its state-management package (`flutter_riverpod` by default; `flutter_bloc` or a peer if the project picked one — §8.2). It wires adapters into the tree at the composition root only.
 
+### 3.6 Deliverable type decides which rules bind
+
+§3 opens with the deliverable types — **core** (pure-Dart library), **package** (published), **CLI**, **TUI**, **GUI** — and one of them narrows the reach of the rules written for repos that own storage. A **library package that ships no adapter** is outside the at-least-two-repository-adapter rule:
+
+- **§1.2 / §5.2 do not bind it.** That rule exists so a contract is the *interface* rather than whatever one adapter happens to do. Where the deliverable **is** the contract — domain + use cases in one package, with the adapter left to whoever consumes it — there is no implementation of ours to vary, and a second one we wrote ourselves would prove nothing about the contract. The rule is not skipped or waived here; it is a category it was never about, which is why the package's `AGENTS.md` records that it publishes no adapter, and why.
+- **The contract suite survives, and its obligation is unchanged.** Ship one suite that takes *any* implementation of a contract and asserts the whole of it — one table, a closure per call, one row per store — so a consumer's own adapter can be run against it. What this clause waives is the second adapter **we** own, never the suite, and never the suite's shape.
+- **A reference implementation may still live in the repository** — and it stays out of the published archive (`.pubignore`). In-repo versus published is the distinction that matters: an adapter a consumer never receives cannot make one storage story look like the doctrine's, and keeping it in the repo is what lets the contracts be read as a running system.
+- **Nothing else is narrowed here.** The unit-of-work seam (§5.5) is its own rule with its own decision, and a package that *does* ship an adapter is bound by §1.2 and §5.2 in full.
+
 ---

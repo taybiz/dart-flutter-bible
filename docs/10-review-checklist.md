@@ -3,7 +3,7 @@
 - [ ] **10.1** Dependencies point inward? (No domain → application/UI imports.) Enforced by the `dart_arch_test` boundary test over the resolved import graph in CI — not by melos?
 - [ ] **10.2** Any `throw`/`try`/`catch`/`on Exception` inside domain, use cases, or datasource *business* code? (Allowed: the single `TaskEither.tryCatch`/`Either.tryCatch` wrapping the third-party call in adapter methods, and the UI ring — hand-rolled `try/catch` inside adapters is *not* allowed.)
 - [ ] **10.3** Entities immutable + equatable? Operations return new instances?
-- [ ] **10.4** Every repository contract has **≥2 repository adapters** and runs the contract suite against all of them?
+- [ ] **10.4** Every repository contract has **≥2 repository adapters** and runs the contract suite against all of them? (A package that publishes no adapter is out of scope — §3.6 — but its contract suite, and the suite's shape, still stand.)
 - [ ] **10.5** Failures typed, layer-mapped (datasource failure ≠ domain failure leaked)?
 - [ ] **10.6** sqlite3 done with drift? Any other ORM/raw sqlite3 in the tree?
 - [ ] **10.7** Any unapproved builder/codegen (freezed, json_serializable, `riverpod_generator`, `injectable`)? If yes — why?
@@ -23,3 +23,4 @@
 - [ ] **10.20** Error style **declared** — the barrel doc comment, the README, and (on any deviation from the `Future<Either<...>>` default) `AGENTS.md` all state whether consumers get FP-style tuples or plain exceptions?
 - [ ] **10.21** GUI-changing work ships with interaction coverage that runs in CI — widget and/or `integration_test` (`flutter test integration_test/…`)? Marionette, if used, has `MarionetteBinding` initialized **only** under `kDebugMode` (no release surface), and `marionette_mcp` stays a dev tool, never an app dependency?
 - [ ] **10.22** State management structured and singular (§8.2): one approach per app; app state in an explicit state layer (provider/cubit/notifier), not widget-local `setState`; no business logic in the state holder; zero state-package imports (`flutter_riverpod`, `flutter_bloc`, …) in the domain ring (domain/usecases/datasources); dependencies resolved at the composition root only?
+- [ ] **10.23** A package that publishes **no adapter** says so in its `AGENTS.md`, still ships a contract suite that takes *any* implementation, and keeps any reference implementation out of the published archive (§3.6)?

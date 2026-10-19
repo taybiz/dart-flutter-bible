@@ -44,6 +44,8 @@ Future<Either<AccountFailure, Account>> call({required String id}) =>
 
 In-memory adapters are legitimate second adapters, and they double as the test double for use-case tests — prefer them over mocking where feasible.
 
+**A package that publishes no adapter is outside this rule** — its deliverable *is* the contract, and there is no implementation of ours to vary (§3.6, *Deliverable type decides which rules bind*). Nothing else about it relaxes: the contract suite still ships, and it still takes any implementation.
+
 ### 1.3 Don't Repeat Yourself (D.R.Y.)
 
 Doctrine lives here, in exactly one place. Repo docs (README, AGENTS.md) and code comments **reference** a rule; they never restate it — a second copy is a second truth the moment the first one changes.

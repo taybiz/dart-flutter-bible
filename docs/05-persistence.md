@@ -12,6 +12,8 @@ For every repository:
 2. **Second adapter** — in-memory (fast, hermetic tests) or a different store (sembast) when the deployment needs a portable file store.
 3. **Contract test suite** — one `test/` file that takes any adapter implementation and asserts the full contract, run against **every** adapter in CI. A contract is only real when two implementations agree on it.
 
+**A package that publishes no adapter is outside this rule** (§3.6): it ships the contracts and the implementation is the consumer's, so there is nothing of ours to vary. The suite obligation is unchanged — one suite that takes *any* implementation, so a consumer's adapter can be run against it. A reference implementation may still live in the repository, but it does not ship in the published archive.
+
 ### 5.3 sqlite3: drift is the ORM, always
 
 - **`drift`** (+ `drift_dev`, `build_runner`) for any sqlite3 persistence. This is the **sanctioned exception to the no-builders rule** (§7) — the ORM layer earns codegen.
