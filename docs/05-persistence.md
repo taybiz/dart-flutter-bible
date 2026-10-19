@@ -12,6 +12,8 @@ For every repository:
 2. **Second adapter** — in-memory (fast, hermetic tests) or a different store (sembast) when the deployment needs a portable file store.
 3. **Contract test suite** — one `test/` file that takes any adapter implementation and asserts the full contract, run against **every** adapter in CI. A contract is only real when two implementations agree on it.
 
+**A package that publishes no adapter is outside this rule** (§3.6): it ships the contracts and the implementation is the consumer's, so there is nothing of ours to vary. The suite obligation is unchanged — one suite that takes *any* implementation, so a consumer's adapter can be run against it. A reference implementation may still live in the repository, but it does not ship in the published archive.
+
 ### 5.3 sqlite3: drift is the ORM, always
 
 - **`drift`** (+ `drift_dev`, `build_runner`) for any sqlite3 persistence. This is the **sanctioned exception to the no-builders rule** (§7) — the ORM layer earns codegen.
@@ -61,11 +63,11 @@ abstract interface class IAccountRepository {
 - **Write methods** (`create`, `update`, `delete`, …) take `IUnitOfWork? uow` — optional at the seam, so callers can join a transaction when they need atomicity. **Reads** (`get`, `list`) *may* take one too: usually they don't, but a read inside a transaction (consistency, read-your-writes) should accept it. Reads never *require* it.
 - **Every adapter does the honest thing:** drift/sembast/isar wrap their real transaction; JSON and other non-transactional stores gracefully emulate or sink it (best-effort single load-modify-persist, or `NoOpUnitOfWork`). The contract still declares `uow`, so the seam is uniform — callers who need atomicity get it where the store can provide it, and nothing silently breaks where it can't.
 
-### 5.6 UnitOfWork pitfalls (field reports)
+### 5.6 UnitOfWork pitfalls (what we have hit in practice)
 
-- **Transactional adapters: keep the native client on the txn for the WHOLE `work()` run.** `IUnitOfWork.run(work)` must `await work()` *inside* the native transaction callback (e.g. sembast's `db.transaction((txn) async { await work(); })`) — the adapter's `client` stays the transaction client for the entire run. Resetting to the root client early deadlocks: DB-client operations wait on the still-open transaction (sembast deletes hang).
-- **A wipe of many stores is ONE unit of work, or it isn't atomic.** `clearAll()` across every `I*Repository` runs inside a single `IUnitOfWork`: a mid-clear failure rolls the WHOLE wipe back — never a half-cleared database. Non-transactional stores emulate (JSON: buffer the single doc, write once on success, discard buffer on failure) or sink (memory: synchronous, nothing can fail; `NoOpUnitOfWork`).
-- **State-layer invalidation is NOT a wipe.** In the UI ring, invalidating the adapters (a provider rebuild, a bloc re-creation) only re-wires them — rows in a persistent store survive (sembast/IndexedDB/sqlite). Tests that omit real overrides use in-memory adapters and never see this; regression-test the clear/wipe path with the real persistent adapter in memory mode (e.g. `databaseFactoryMemory`).
+- **Transactional adapters: keep the native client on the txn for the whole `work()` run.** `IUnitOfWork.run(work)` must `await work()` *inside* the native transaction callback (e.g. sembast's `db.transaction((txn) async { await work(); })`) — the adapter's `client` stays the transaction client for the entire run. Resetting to the root client early deadlocks: DB-client operations wait on the still-open transaction (sembast deletes hang).
+- **A wipe of many stores is one unit of work, or it isn't atomic.** `clearAll()` across every `I*Repository` runs inside a single `IUnitOfWork`: a mid-clear failure rolls the whole wipe back — never a half-cleared database. Non-transactional stores emulate (JSON: buffer the single doc, write once on success, discard buffer on failure) or sink (memory: synchronous, nothing can fail; `NoOpUnitOfWork`).
+- **State-layer invalidation is not a wipe.** In the UI ring, invalidating the adapters (a provider rebuild, a bloc re-creation) only re-wires them — rows in a persistent store survive (sembast/IndexedDB/sqlite). Tests that omit real overrides use in-memory adapters and never see this; regression-test the clear/wipe path with the real persistent adapter in memory mode (e.g. `databaseFactoryMemory`).
 
 ### 5.7 General rules
 

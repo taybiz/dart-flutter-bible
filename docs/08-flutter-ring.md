@@ -22,7 +22,7 @@ Flutter is delivery. All the doctrine above applies *behind* it; this section is
 
 ### 8.3 The only seam: use cases
 
-**Widgets interact with exactly one thing: use cases** (reached through the app's state layer, §8.2). Hard rule, not a preference:
+**Widgets interact with exactly one thing: use cases** (reached through the app's state layer, §8.2). This is a rule, not a preference:
 
 - No widget imports a repository, a datasource, or an entity-construction factory.
 - No widget reads a database, HTTP client, or platform storage — directly, or through state that skips the use-case seam.
@@ -71,7 +71,7 @@ class AccountCubit extends Cubit<AccountState> {
 - One-direction flow: event → state layer → use case → state → widget rebuild (§8.2).
 - Keep `build` methods small; extract `StatelessWidget`/`const` sub-widgets.
 - No `BuildContext` passed into use cases or repositories, ever.
-- **Pitfall (field report): don't move a widget under a stationary cursor if you rely on `MouseRegion.onExit`.** Flutter deliberately does not fire `onExit` when a widget moves beneath a stationary pointer (flutter/flutter#44957) — inside a `ListView` the mouse tracker silently drops the annotation. A warning rendered ABOVE a button pushed the button down ~52px on arming, so the armed state never disarmed and the pointer was left hanging over the warning. Keep the button stationary; render warnings below it, or sync the armed state from state rather than exit events.
+- **Pitfall (from practice): don't move a widget under a stationary cursor if you rely on `MouseRegion.onExit`.** Flutter deliberately does not fire `onExit` when a widget moves beneath a stationary pointer (flutter/flutter#44957) — inside a `ListView` the mouse tracker silently drops the annotation. A warning rendered ABOVE a button pushed the button down ~52px on arming, so the armed state never disarmed and the pointer was left hanging over the warning. Keep the button stationary; render warnings below it, or sync the armed state from state rather than exit events.
 
 ### 8.5 Flutter tests
 

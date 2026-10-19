@@ -21,10 +21,10 @@
 
 ### 1.1 The Four Laws
 
-1. **1.1.1** — **Dependencies point inward. Always.** Domain knows nothing about application, UI, or datasources. Application knows domain. UI knows everything *through interfaces*. Nothing outside knows anything concrete about the center.
-2. **1.1.2** — **Entities are the center.** Pure Dart classes: immutable (`const` constructors), value equality (`equatable`), zero I/O, zero Flutter imports. All operations return **new instances**.
-3. **1.1.3** — **Flow is one direction:** UI → use case → repository interface → datasource adapter. No sideways jumps. No UI talking to a datasource. No use case instantiating a widget.
-4. **1.1.4** — **Exceptions are a UI-boundary phenomenon.** Everywhere inside the bulls-eye, failure is a *value* (fpdart `Either`/`TaskEither`). Only the outermost ring may throw or catch. We are rust-like: failures are typed tuples, not jumps.
+1. **1.1.1** — **Dependencies point inward**, without exception. Domain knows nothing about application, UI, or datasources. Application knows domain. UI knows everything *through interfaces*. Nothing outside the center knows anything concrete about it.
+2. **1.1.2** — **Entities are the center.** Pure Dart classes: immutable (`const` constructors), value equality (`equatable`), no I/O, no Flutter imports. Operations return **new instances**.
+3. **1.1.3** — **Flow runs one way:** UI → use case → repository interface → datasource adapter. No sideways jumps, no UI talking to a datasource, no use case instantiating a widget.
+4. **1.1.4** — **Exceptions belong to the UI boundary.** Everywhere inside the bulls-eye, failure is a *value* (fpdart `Either`/`TaskEither`). Only the outermost ring may throw or catch: failures are typed values you return, not control flow you jump through.
 
 In code, the flow looks like this:
 
@@ -38,11 +38,13 @@ Future<Either<AccountFailure, Account>> call({required String id}) =>
     _repository.get(id: id);
 ```
 
-### 1.2 The At Least Two Repository Adapter Rule (the one we never skip)
+### 1.2 The At Least Two Repository Adapter Rule
 
-**Every repository contract gets at least two repository adapters.** One real persistence adapter is not enough — with only one adapter, the contract is whatever that adapter happens to do. Two adapters (e.g. drift/sqlite + in-memory, or drift + sembast) force the contract to be the *interface*, and a shared **contract test suite** runs against every adapter, so a deviation in any implementation fails CI.
+**Every repository contract gets at least two repository adapters.** One real persistence adapter is not enough — with only one adapter, the contract is whatever that adapter happens to do. Two adapters (say drift/sqlite + in-memory, or drift + sembast) force the contract back to being the *interface*, and a shared **contract test suite** runs against every adapter, so a deviation in any implementation fails CI.
 
-In-memory adapters are legitimate second adapters, and they double as the test double for use-case tests — prefer them over mocking where feasible.
+In-memory adapters count as a legitimate second adapter, and they double as the test double for use-case tests — prefer them over mocking where you can.
+
+**A package that publishes no adapter is outside this rule** — its deliverable *is* the contract, and there is no implementation of ours to vary (§3.6, *Deliverable type decides which rules bind*). Nothing else about it relaxes: the contract suite still ships, and it still takes any implementation.
 
 ### 1.3 Don't Repeat Yourself (D.R.Y.)
 

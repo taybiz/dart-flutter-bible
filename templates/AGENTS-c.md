@@ -9,6 +9,7 @@ restated (bible §1.3 D.R.Y.).
 
 - Read the bible compact blob first: `docs/00-compact.md` (link or vendored copy).
 - Topology C specifics: bible §3.3 (a single package is still a melos workspace root).
+- Shipping **no adapter** (a pure library whose storage is the consumer's): bible §3.6 — the at-least-two-adapter rule does not bind this package, so it is **not** a deviation.
 - If this file contradicts the bible, the bible wins until changed by proposal.
 
 ## Layout (Topology C)

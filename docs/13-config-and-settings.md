@@ -70,14 +70,14 @@ In Dart, build the path without `path_provider` (which is Flutter-only):
 import 'dart:io' show Platform;
 
 String defaultConfigPath(String appName) {
+  final env = Platform.environment;
   if (Platform.isLinux) {
-    return '${Platform.environment['XDG_CONFIG_HOME']
-        ?? '${Platform.environment['HOME']}/.config''
-      }/$appName/config';
+    final base = env['XDG_CONFIG_HOME'] ?? '${env['HOME']}/.config';
+    return '$base/$appName/config';
   } else if (Platform.isMacOS) {
-    return '${Platform.environment['HOME']}/Library/Application Support/$appName/config';
+    return '${env['HOME']}/Library/Application Support/$appName/config';
   } else if (Platform.isWindows) {
-    final appData = Platform.environment['APPDATA'];
+    final appData = env['APPDATA'];
     if (appData == null) throw StateError('APPDATA not set');
     return '$appData\\$appName\\config';
   }

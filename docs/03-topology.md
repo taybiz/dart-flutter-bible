@@ -6,7 +6,7 @@ The bulls-eye maps to repos. Three topologies are sanctioned; pick per project:
 
 ### 3.1 Topology A — one workspace repo (small / pure-Dart projects)
 
-Everything in one pub workspace, exactly as laid out below. Best when there is a single delivery mechanism (CLI only) or the team is small enough that one PR per change is a feature, not a bottleneck.
+Everything in one pub workspace, laid out as below. It fits a project with a single delivery mechanism (CLI only), or a team small enough that one PR per change is an advantage rather than a bottleneck.
 
 ```
 my_workspace/
@@ -51,7 +51,7 @@ Rules for Topology B:
 
 ### 3.3 Topology C — single-package repo (one library, one package, one delivery)
 
-A repo that genuinely holds **one** package — a published package, or a pure-Dart library with a single delivery mechanism — is **still a melos workspace**. The package *is* the workspace root, so the config lives in its own `pubspec.yaml` and melos is a dev dependency. What that buys is the tool belt around the code: one place for the scripts CI calls, `melos run`, and the release flow (`melos version` for the changelog and tag, `melos publish`). A single-package repo does not drop melos to save a file.
+A repo that genuinely holds **one** package — a published package, or a pure-Dart library with a single delivery mechanism — is **still a melos workspace**. The package *is* the workspace root, so the config lives in its own `pubspec.yaml` and melos is a dev dependency. What that buys is the tool belt around the code: one place for the scripts CI calls, `melos run`, and the release flow (`melos version` for the changelog and tag, `melos publish`). A single-package repo keeps melos rather than dropping it to save a file.
 
 ```yaml
 name: thing_package              # the package IS the workspace root
@@ -68,7 +68,7 @@ melos:
 
 Rules for Topology C:
 
-- **`melos.yaml` is still a bad smell** (§2 Toolchain) — the `melos:` key in the pubspec is the configuration, and this topology has no `workspace:` list and no `resolution: workspace` anywhere.
+- **`melos.yaml` is still a leftover** (§2 Toolchain) — the `melos:` key in the pubspec is the configuration, and this topology has no `workspace:` list and no `resolution: workspace` anywhere.
 - The root package keeps its publishable metadata (`version`, `repository`, `topics`, …). Being a workspace root changes nothing about what ships to pub.dev.
 - `melos bootstrap` writes `melos_<package>.iml` into the root, so `*.iml` belongs in `.gitignore` or it rides into the published archive.
 - CI calls the scripts (`dart run melos run analyze`), never the raw commands, so a script that rots fails the build instead of quietly passing.
@@ -89,5 +89,14 @@ The application layer (use cases) **is** the shared public face of the core — 
 - `thing_usecases` depends on `thing_domain` + `fpdart`. No datasource implementations, no Flutter.
 - `*_datasource_*` packages depend on `thing_domain` + their storage tech (drift, sembast).
 - `thing_flutter` (the app) depends on use cases + datasource packages + its state-management package (`flutter_riverpod` by default; `flutter_bloc` or a peer if the project picked one — §8.2). It wires adapters into the tree at the composition root only.
+
+### 3.6 Deliverable type decides which rules bind
+
+§3 opens with the deliverable types — **core** (pure-Dart library), **package** (published), **CLI**, **TUI**, **GUI** — and one of them narrows the reach of the rules written for repos that own storage. A **library package that ships no adapter** is outside the at-least-two-repository-adapter rule:
+
+- **§1.2 / §5.2 do not bind it.** That rule exists so a contract is the *interface* rather than whatever one adapter happens to do. Where the deliverable **is** the contract — domain + use cases in one package, with the adapter left to whoever consumes it — there is no implementation of ours to vary, and a second one we wrote ourselves would prove nothing about the contract. The rule is not skipped or waived here; it is a category it was never about, which is why the package's `AGENTS.md` records that it publishes no adapter, and why.
+- **The contract suite survives, and its obligation is unchanged.** Ship one suite that takes *any* implementation of a contract and asserts the whole of it — one table, a closure per call, one row per store — so a consumer's own adapter can be run against it. What this clause waives is the second adapter **we** own, never the suite, and never the suite's shape.
+- **A reference implementation may still live in the repository** — and it stays out of the published archive (`.pubignore`). In-repo versus published is the distinction that matters: an adapter a consumer never receives cannot make one storage story look like the doctrine's, and keeping it in the repo is what lets the contracts be read as a running system.
+- **Nothing else is narrowed here.** The unit-of-work seam (§5.5) is its own rule with its own decision, and a package that *does* ship an adapter is bound by §1.2 and §5.2 in full.
 
 ---
