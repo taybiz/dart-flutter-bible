@@ -2,7 +2,7 @@
 
 ### 6.1 The idiom: shouldly, "should be"
 
-**`shouldly`** (yes, `shouldly` — pronounced "should-lee", package on pub.dev) is the assertion library. The idiom is plain-English: `value.should.be(...)`.
+**`shouldly`** (pronounced "should-lee"; the package is on pub.dev) is the assertion library. The idiom is plain English: `value.should.be(...)`.
 
 ```dart
 final result = await useCase.call(id: 'acct1');
@@ -46,9 +46,9 @@ group('Given GetAccountUseCase', () {
 
 Every use case test asserts **both** sides of the Either: the `Right` happy path and each `Left` failure (missing entity, invalid input, repository error). A failure path without a test is a bug waiting for the UI to display it.
 
-### 6.5 Pitfalls (field reports)
+### 6.5 Pitfalls (from practice)
 
-Things that have actually bitten people, so they bite no one twice:
+Failure modes we have hit in practice, written down so we only hit them once:
 
 - **fpdart `isRight`/`isLeft` are methods, not properties.** `result.isRight()`, never `result.isRight`. The property form compiles into a silently-wrong assertion or an analyzer complaint depending on context — either way it wastes a debugging cycle.
 - **shouldly has no `beTrue`/`beFalse`.** Use `.should.be(true)` / `.should.be(false)`. (shouldly pins here: `shouldly: ^0.5.0+1`; older versions have a different API shape.) 
@@ -59,7 +59,7 @@ Things that have actually bitten people, so they bite no one twice:
 
 ### 6.6 GUI testing: the three layers
 
-A GUI is tested at three levels, and they are **not interchangeable**. An agent driving a *running* app is never a repeatable gate — it is the accelerant, not the test.
+A GUI is tested at three levels, and they are **not interchangeable**. An agent driving a *running* app is useful in development and is never a repeatable gate.
 
 | Layer | What runs | Deterministic in CI? | Purpose |
 |---|---|---|---|

@@ -19,7 +19,7 @@ Doctrine lives in §1–§10 — that is the single source of truth. This sectio
 | One hand-written barrel per package | §2 Toolchain | `src/` is private; what's exported *is* the public API |
 | UnitOfWork | §5 Persistence | Optional `IUnitOfWork? uow` on write methods; reads may take one too; adapters wrap real transactions or gracefully sink |
 | fpdart termination | §4 Functional Core | Public seam **defaults** to `Future<Either<F,T>>` (`.run()` inside the layer); a package may present the unrun `TaskEither` when it declares the style (§4.9), which the consumer then runs; consumers never compose chains across a seam |
-| Error style is declared, never inferred | §4 Functional Core | Two styles are in the estate (FP-style tuples, plain exceptions); the consumer must be told which one they hold. Named in the barrel, the README, and — on any deviation — `AGENTS.md`. Silence is the violation, not the choice |
+| Error style is declared, never inferred | §4 Functional Core | Two styles live in the estate (FP-style tuples, plain exceptions); the consumer must be told which one they hold. Named in the barrel, the README, and — on any deviation — `AGENTS.md`. Silence is the problem, not the choice |
 | State-management packages are composition/presentation-ring only — never the domain ring | §8 Flutter Ring | Domain/usecases/datasources stay pure Dart: zero `flutter_riverpod`/`flutter_bloc`; the state layer wraps use cases in the UI ring only |
 | Code placement | §2 Toolchain | Tests first; `example/` (singular — pub.dev convention) for packages or genuine need (e.g., core facade for GUI); never READMEs/prose |
 | Lint-enforced vs review-enforced split | §2 Toolchain | Self-enforce what's automatable; taste rules stay in review |

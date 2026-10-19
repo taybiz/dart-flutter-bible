@@ -19,7 +19,7 @@ restated (§1.3 D.R.Y.). Deviations and local wiring are the only things you fil
 1. Copy the template(s) for your topology into the new repo as `AGENTS.md`,
    `BACKLOG.md`, `CHANGELOG.md`.
 2. Replace the `<placeholders>` (`<project>`, `<thing>_domain`, `<thing_core>`, …).
-3. Delete the explanatory "Deviations" stub only if it stays empty — or keep it as
-   a deliberate null. The D.R.Y. rule stands: never copy doctrine rules into these files.
+3. Delete the explanatory "Deviations" stub if it stays empty, or keep it as a
+   deliberate "none". The D.R.Y. rule stands: don't copy doctrine rules into these files.
 
 See `docs/09-bootstrap-checklist.md` §9.11 for where these land in the new-project flow.

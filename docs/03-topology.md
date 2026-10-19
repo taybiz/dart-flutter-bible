@@ -6,7 +6,7 @@ The bulls-eye maps to repos. Three topologies are sanctioned; pick per project:
 
 ### 3.1 Topology A — one workspace repo (small / pure-Dart projects)
 
-Everything in one pub workspace, exactly as laid out below. Best when there is a single delivery mechanism (CLI only) or the team is small enough that one PR per change is a feature, not a bottleneck.
+Everything in one pub workspace, laid out as below. It fits a project with a single delivery mechanism (CLI only), or a team small enough that one PR per change is an advantage rather than a bottleneck.
 
 ```
 my_workspace/
@@ -51,7 +51,7 @@ Rules for Topology B:
 
 ### 3.3 Topology C — single-package repo (one library, one package, one delivery)
 
-A repo that genuinely holds **one** package — a published package, or a pure-Dart library with a single delivery mechanism — is **still a melos workspace**. The package *is* the workspace root, so the config lives in its own `pubspec.yaml` and melos is a dev dependency. What that buys is the tool belt around the code: one place for the scripts CI calls, `melos run`, and the release flow (`melos version` for the changelog and tag, `melos publish`). A single-package repo does not drop melos to save a file.
+A repo that genuinely holds **one** package — a published package, or a pure-Dart library with a single delivery mechanism — is **still a melos workspace**. The package *is* the workspace root, so the config lives in its own `pubspec.yaml` and melos is a dev dependency. What that buys is the tool belt around the code: one place for the scripts CI calls, `melos run`, and the release flow (`melos version` for the changelog and tag, `melos publish`). A single-package repo keeps melos rather than dropping it to save a file.
 
 ```yaml
 name: thing_package              # the package IS the workspace root
@@ -68,7 +68,7 @@ melos:
 
 Rules for Topology C:
 
-- **`melos.yaml` is still a bad smell** (§2 Toolchain) — the `melos:` key in the pubspec is the configuration, and this topology has no `workspace:` list and no `resolution: workspace` anywhere.
+- **`melos.yaml` is still a leftover** (§2 Toolchain) — the `melos:` key in the pubspec is the configuration, and this topology has no `workspace:` list and no `resolution: workspace` anywhere.
 - The root package keeps its publishable metadata (`version`, `repository`, `topics`, …). Being a workspace root changes nothing about what ships to pub.dev.
 - `melos bootstrap` writes `melos_<package>.iml` into the root, so `*.iml` belongs in `.gitignore` or it rides into the published archive.
 - CI calls the scripts (`dart run melos run analyze`), never the raw commands, so a script that rots fails the build instead of quietly passing.

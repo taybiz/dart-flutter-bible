@@ -21,7 +21,7 @@ In an agent-run world it earns this place because:
 - **Script-rot detection.** CI calls `melos run analyze`; a script that rots fails the build instead of quietly drifting.
 - **Release flow.** `melos version` / `melos publish` give a deterministic changelog/tag/publish pipeline, single-package topologies included (§3.3).
 
-What melos is **not**: the orchestrator. It enforces no boundary direction — that is `dart_arch_test`'s job (§2.9). The `melos.yaml` file remains a bad smell: it was deleted in **melos 7.0.0** in favor of the root `pubspec.yaml`; a repo still carrying one is on 6.x or earlier and should be migrated. Config lives in the **root `pubspec.yaml`** under a `melos:` key.
+What melos is **not**: the orchestrator. It enforces no boundary direction — that is `dart_arch_test`'s job (§2.9). The `melos.yaml` file is a leftover from an older setup: it was deleted in **melos 7.0.0** in favor of the root `pubspec.yaml`, so a repo still carrying one is on 6.x or earlier and should be migrated. Config lives in the **root `pubspec.yaml`** under a `melos:` key.
 
 Root `pubspec.yaml`:
 
@@ -118,8 +118,8 @@ CI calls these (`dart run melos run verify`, or `analyze` + `test` as separate s
 
 "Clean" means **zero diagnostics — errors, warnings, and infos alike.** A report of
 "zero errors, only warnings/infos remain" is not a pass; it is a failing state with a
-known cause. There is no such thing as a harmless analyzer finding, and an agent that
-reports a pass while any diagnostic remains is wrong, full stop.
+known cause. There is no such thing as a harmless analyzer finding, and a run that
+reports a pass while any diagnostic remains has not passed.
 
 - **The gate is the fatal flags, not plain analyze.** Plain `dart analyze` exits 0 on
   infos alone, so it can't be trusted as a gate. Run `dart analyze --fatal-infos
@@ -127,12 +127,12 @@ reports a pass while any diagnostic remains is wrong, full stop.
   becomes a non-zero exit.
 - **TODOs are diagnostics, not exceptions.** Map `todo` to `error` in
   `analysis_options.yaml` (`analyzer: errors: todo: error`), so a TODO comment is a
-  compile error. Deferred work goes in the project roadmap doc — never in a code
-  comment. No TODO survives into merged or released code.
+  compile error. Deferred work goes in the project roadmap doc, never in a code
+  comment. No TODO reaches merged or released code.
 - **Suppression is per-line or nothing.** A rule that genuinely doesn't apply gets
   `// ignore: <rule_code>` on the offending line (with a reason when the intent isn't
-  obvious). Never `// ignore_for_file:`. Never disable a rule in `analysis_options.yaml`.
-  If a lint fires everywhere, the code is wrong — not the lint.
+  obvious). Never `// ignore_for_file:`, and no rule disabled in `analysis_options.yaml`.
+  When a lint fires everywhere, treat the code as the wrong part, not the lint.
 
 ### 2.3 Dart-first editing
 
@@ -170,7 +170,7 @@ Know what we build: **cores** (pure-Dart libraries), **packages** (published to 
 
 - **Tests are the default home for all example code** — fully exercised and documented there. If it compiles and demonstrates something, it belongs in a test before anywhere else.
 - **`example/` is a package deliverable.** pub.dev builds its Example tab from an `example/` directory — singular, per the [package layout](https://dart.dev/tools/pub/package-layout) convention (`example/README.md`, `example/example.dart` or `example/lib/main.dart`). So published packages get a real, CI-tested `example/`; `examples/` (plural) is not the pub.dev convention. Non-published deliverables (cores, CLIs, TUIs, GUIs) skip it unless there's a genuine need — e.g., a core ships a small facade example so GUI implementers can see the seam wired. Otherwise: tests.
-- **Never in READMEs or prose documentation**, with the very smallest exceptions (a one-line command, a filename). The doctrine docs themselves may carry small illustrative snippets — tight, not piles — but anything that must compile and stay true is a test or `example/`.
+- **Example code does not go in READMEs or prose documentation**, with the very smallest exceptions (a one-line command, a filename). The doctrine docs themselves may carry small illustrative snippets — tight, not piles — but anything that must compile and stay true is a test or `example/`.
 
 See `example/` (`bible_samples`) for the CI-tested reference.
 
@@ -272,7 +272,7 @@ void main() {
 
 Notes (verified against a two-package pub workspace):
 - **`Collector.buildGraph` resolves the full import graph across the whole workspace** — real analyzer resolution keyed by canonical `package:` URIs. Point it at the workspace root and it sees every member package. This is what substring/folder heuristics (and `import_rules` in practice) cannot do.
-- **The glob DSL is package-name-blind — do not use it for package boundaries.** `dart_arch_test` strips the `package:<name>/` prefix before matching, so whole-package patterns (`filesMatching('thing_domain/**')`, `defineOnion`/`defineLayers` keyed on package names) match **nothing** in a multi-package workspace, and a planted cross-package violation sails through silently. Write **plain assertions over `package:` URIs** (the `checkBoundary` helper above) for direction. `filesMatching('**')` / `allFiles()` still match everything, so workspace-wide cycle checks work.
+- **The glob DSL is package-name-blind — do not use it for package boundaries.** `dart_arch_test` strips the `package:<name>/` prefix before matching, so whole-package patterns (`filesMatching('thing_domain/**')`, `defineOnion`/`defineLayers` keyed on package names) match **nothing** in a multi-package workspace, and a cross-package violation that should fail passes unnoticed. Write **plain assertions over `package:` URIs** (the `checkBoundary` helper above) for direction. `filesMatching('**')` / `allFiles()` still match everything, so workspace-wide cycle checks work.
 - **Root resolution: use `Directory.current` + walk-up, never `Platform.script`.** Under some runners (`dart test`) `Platform.script` points at the runner's kernel snapshot in a scratch dir, so a graph built from it is empty and every rule passes vacuously (verified). The `workspaceRoot()` helper walks up from CWD to the `workspace:` pubspec. See the live, CI-run test in `example/test/architecture_test.dart` for the working pattern.
 - `shouldBeFreeOfCycles(allFiles(), graph)` is the cycle gate; it is workspace-wide and reliable.
 - It is **self-enforcing by construction**: a real test, no config files, no codegen — CI already runs it with `dart test`.

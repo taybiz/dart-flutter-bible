@@ -107,15 +107,15 @@ TaskEither is the **internal** composition type. The **default** public seam is 
 
 Domain entities and value objects get value semantics for `==` and `hashCode`, which fpdart pattern matching, testing, and drift row mapping all rely on. Use `equatable` where that rule applies — first and foremost your domain entities — rather than hand-written equality. The application form is not prescribed: either `extends Equatable` or, when the class already extends a base, `with EquatableMixin`, always paired with `List<Object?> get props => [...]`. Hand-written, no codegen.
 
-### 4.8 The exception rule, stated once, loudly
+### 4.8 The exception rule, stated once
 
-**Inside the bulls-eye: no `throw`, no `try/catch` (except `tryCatch` conversion at adapter boundaries), no `on Exception`.** The UI ring is the *only* place exceptions are raised or caught, and even there they should be converted into UI state as fast as possible.
+**Inside the bulls-eye: no `throw`, no `try/catch` beyond the `tryCatch` conversion at adapter boundaries, no `on Exception`.** The UI ring is the *only* place exceptions are raised or caught, and even there they should be converted into UI state as fast as possible.
 
 The "outermost ring" is wherever a delivery mechanism meets the outside world — the Flutter widget boundary (§8.1) *or* a CLI/TUI's composition root and `bin/` entrypoint. A headless CLI has no Flutter "UI ring"; its `bin/` `main` *is* the ring. A package that legitimately presents plain exceptions (§4.9) is that ring, not an exception to this section.
 
-### 4.9 Declare the error style, loudly
+### 4.9 Declare the error style, clearly
 
-Two error styles live in our estate and a consumer must never have to discover
+Two error styles live in our estate and a consumer should never have to discover
 which one they are holding: **FP-style tuples** (`Either` / `TaskEither` — failure
 is a value) or **plain exceptions** (failure is thrown). Every package declares
 which one it presents, in the same words, in all of these:
@@ -138,8 +138,8 @@ The declaration names the style and the failure type in consumer terms:
 - **Default:** core packages present `Future<Either<Failure, T>>` and terminate
   their own chains (above). A package that hands the consumer the unrun
   `TaskEither` instead is **not** a violation *provided it declares it* — seeing a
-  tuple is how a consumer knows to `.run()` it. The violation is silence, never
-  the choice.
+  tuple is how a consumer knows to `.run()` it. Silence is the problem, never the
+  choice.
 - **Exceptions are never the default in the bulls-eye.** A package that presents
   them says where they are raised and caught (see *The exception rule*, §4.8) and
   keeps them out of domain and use cases.
