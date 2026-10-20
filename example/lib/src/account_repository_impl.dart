@@ -5,7 +5,6 @@ import 'account_failure.dart';
 import 'account_http_adapter.dart';
 import 'datasource_failure.dart';
 import 'i_account_repository.dart';
-import 'i_unit_of_work.dart';
 
 /// Maps low-level datasource failures up into the domain failure layer.
 ///
@@ -26,16 +25,13 @@ class AccountRepositoryImpl implements IAccountRepository {
   AccountRepositoryImpl({required this.adapter});
 
   @override
-  Future<Either<AccountFailure, Account>> get({
-    required String id,
-    IUnitOfWork? uow,
-  }) => adapter.fetchAccount(id: id).mapLeft(mapDatasourceFailure).run();
+  Future<Either<AccountFailure, Account>> get({required String id}) =>
+      adapter.fetchAccount(id: id).mapLeft(mapDatasourceFailure).run();
 
   @override
   Future<Either<AccountFailure, Account>> create({
     required String id,
     required String holder,
-    IUnitOfWork? uow,
   }) => adapter
       .fetchRawAccount(id: id)
       .map(
