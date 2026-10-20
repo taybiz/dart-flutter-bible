@@ -37,36 +37,65 @@ final db = await databaseFactoryMemory.openDatabase(inMemoryDatabasePath);
 
 - Use sembast when a NoSQL document store is the right shape, or when "one file, zero plugins" matters. SQL-shaped data goes to drift.
 
-### 5.5 UnitOfWork: optional transactions at the contract
+### 5.5 UnitOfWork: the transaction seam sits at the operation
 
-Some stores are transactional (drift, sembast, isar); some aren't (plain JSON files). The contract treats transactions as a first-class, optional thing:
+Atomicity belongs to a business **operation**, not to a single write — "delete this article and the model it orphaned", "update this SKU and its parts". Some stores are transactional (drift, sembast, isar), some are not (plain JSON files). So the seam sits on the operation, and the repository contract stays plain:
 
 ```dart
 abstract interface class IAccountRepository {
-  /// Returns the account with [id]; pass [uow] to read consistently inside a
-  /// transaction — most reads won't need it.
-  Future<Either<AccountFailure, Account>> get({
-    required String id,
-    IUnitOfWork? uow,
-  });
+  /// Returns the account with [id].
+  Future<Either<AccountFailure, Account>> get({required String id});
 
-  /// Creates an account; pass [uow] to join a larger transaction.
+  /// Creates an account.
   Future<Either<AccountFailure, Account>> create({
     required String id,
     required String holder,
-    IUnitOfWork? uow,
   });
 }
 ```
 
-- **`IUnitOfWork`** is a domain-package contract (`run<T>(Future<T> Function() work)`); transactional adapters implement it over their native transaction (`db.transaction(...)`).
-- **Write methods** (`create`, `update`, `delete`, …) take `IUnitOfWork? uow` — optional at the seam, so callers can join a transaction when they need atomicity. **Reads** (`get`, `list`) *may* take one too: usually they don't, but a read inside a transaction (consistency, read-your-writes) should accept it. Reads never *require* it.
-- **Every adapter does the honest thing:** drift/sembast/isar wrap their real transaction; JSON and other non-transactional stores gracefully emulate or sink it (best-effort single load-modify-persist, or `NoOpUnitOfWork`). The contract still declares `uow`, so the seam is uniform — callers who need atomicity get it where the store can provide it, and nothing silently breaks where it can't.
+```dart
+class CreateAccountUseCase {
+  final IAccountRepository _repository;
+  final UnitOfWork _unitOfWork;
+
+  /// Wraps the [repository] the use case delegates to, inside the required
+  /// unit of work.
+  const CreateAccountUseCase(this._repository, {required UnitOfWork unitOfWork})
+      : _unitOfWork = unitOfWork;
+
+  /// Creates the account, or [AccountAlreadyExists].
+  Future<Either<AccountFailure, Account>> call({
+    required String id,
+    required String holder,
+  }) => _unitOfWork<AccountFailure, Account>(
+    body: () => _repository.create(id: id, holder: holder),
+  );
+}
+```
+
+- **`UnitOfWork` is a function type, not a class** — take a body, run it, answer with the body's own `Either`:
+
+```dart
+typedef UnitOfWork = Future<Either<F, T>> Function<F, T>({
+  required Future<Either<F, T>> Function() body,
+});
+```
+
+  It is `Either`-aware because **rollback is a value, not an exception**: a body that fails answers `Left`, the adapter undoes the writes, and `F` stays the *caller's* failure type. Assigning a closure to this type is checked at the exact signature, so a transactional adapter writes a closure over its own client and keeps its state for free.
+- **An operation that must be atomic takes one as a required constructor dependency.** Required rather than optional, because an optional `uow` lets `DeleteInstance(id: x)` compile and quietly mean *no transaction* — the same thing a store that cannot roll back means, with nothing at the call site to tell them apart. The criterion that picks the set: the operation **steps more than once**, or it **decides a rule by reading and then writes**. A single read steps once and takes nothing. The seam is infrastructure, so it goes on the constructor — the business signature stays `call({required String id})`.
+- **"This store cannot roll back" is stated once, at the composition root**, by wiring `noOpUnitOfWork`. *Required* means the dependency is *stated*, not that a transaction is *implemented*: a memory or JSON store passes the no-op and writes no adapter.
+- **An operation that composes others owns the only unit** and builds the pieces it composes itself, wired with the no-op — so a unit never nests. Stores are not obliged to support nested transactions (SQLite has none).
+- **Enrollment is per operation, not per write.** A consumer hands their own `UnitOfWork` to the operation they construct. They cannot take a single write of one into their own transaction, because a write is not the unit of atomicity.
 
 ### 5.6 UnitOfWork pitfalls (what we have hit in practice)
 
-- **Transactional adapters: keep the native client on the txn for the whole `work()` run.** `IUnitOfWork.run(work)` must `await work()` *inside* the native transaction callback (e.g. sembast's `db.transaction((txn) async { await work(); })`) — the adapter's `client` stays the transaction client for the entire run. Resetting to the root client early deadlocks: DB-client operations wait on the still-open transaction (sembast deletes hang).
-- **A wipe of many stores is one unit of work, or it isn't atomic.** `clearAll()` across every `I*Repository` runs inside a single `IUnitOfWork`: a mid-clear failure rolls the whole wipe back — never a half-cleared database. Non-transactional stores emulate (JSON: buffer the single doc, write once on success, discard buffer on failure) or sink (memory: synchronous, nothing can fail; `NoOpUnitOfWork`).
+- **Transactional adapters: keep the native client on the txn for the whole body run.** The unit of work must `await body()` *inside* the native transaction callback (e.g. sembast's `db.transaction((txn) async { await body(); })`) — the adapter's `client` stays the transaction client for the entire run. Resetting to the root client early deadlocks: DB-client operations wait on the still-open transaction (sembast deletes hang).
+- **Take the write lock when the unit opens, not at its first write.** On SQLite that is `BEGIN IMMEDIATE` rather than the deferred default: a deferred unit reads an unprotected snapshot, so a rule's check can be beaten by a concurrent writer and the loss surfaces as a store error (`database is locked`) instead of a domain failure. Holding the lock from the start is what makes a check and the write that follows it one step — which is why a rule-carrying operation takes the seam at all.
+- **Route every repository call through the open transaction, reads included.** The repositories are never handed the unit of work, so the adapter publishes it for the duration and clears it in a `finally`. A read on another connection does not hang; it answers from the *pre-transaction* snapshot. For a check that is worse than a failure, because nothing reports it.
+- **Treat a busy store as "this unit did not happen" and retry the whole unit.** SQLite rolls the transaction back on a failed lock upgrade in journal mode and leaves it open in WAL, so an adapter may assume neither state: set a busy timeout or retry with a bound. Rollback is a *value* here; retry is the adapter's business.
+- **Re-entrance means joining the open unit, not opening a second one.** A consumer may run a catalog write inside their own unit of work — that is what the seam is for. If one is already open on this client, run the body inside it rather than starting another: SQLite answers a nested `BEGIN` with "cannot start a transaction within a transaction". Reach for a `SAVEPOINT` only when the inner unit must roll back on its own. (drift's `transaction()` nests via savepoints and absorbs this; raw `package:sqlite3` leaves the branch to you.)
+- **A wipe across many stores is one unit of work, so it rolls back whole.** The operation that wipes owns the unit; nothing on the contracts is needed for it. A mid-clear failure rolls the whole wipe back rather than leaving half a database. Non-transactional stores emulate (JSON: buffer the single doc, write once on success, discard the buffer on failure) or sink (memory: synchronous, nothing can fail; `noOpUnitOfWork`).
 - **State-layer invalidation is not a wipe.** In the UI ring, invalidating the adapters (a provider rebuild, a bloc re-creation) only re-wires them — rows in a persistent store survive (sembast/IndexedDB/sqlite). Tests that omit real overrides use in-memory adapters and never see this; regression-test the clear/wipe path with the real persistent adapter in memory mode (e.g. `databaseFactoryMemory`).
 
 ### 5.7 General rules

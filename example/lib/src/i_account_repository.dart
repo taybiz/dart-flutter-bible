@@ -2,21 +2,19 @@ import 'package:fpdart/fpdart.dart';
 
 import 'account.dart';
 import 'account_failure.dart';
-import 'i_unit_of_work.dart';
 
 /// Repository contract — lives in the domain package; adapters implement it.
+///
+/// Nothing here knows about transactions: the seam sits on the operation that
+/// needs one (§5.5), so an implementer writes these methods without knowing who
+/// owns a unit of work.
 abstract interface class IAccountRepository {
-  /// Returns the account with [id]; pass [uow] to read consistently inside a
-  /// transaction — most reads won't need it.
-  Future<Either<AccountFailure, Account>> get({
-    required String id,
-    IUnitOfWork? uow,
-  });
+  /// Returns the account with [id].
+  Future<Either<AccountFailure, Account>> get({required String id});
 
-  /// Creates an account; pass [uow] to join a larger transaction.
+  /// Creates an account.
   Future<Either<AccountFailure, Account>> create({
     required String id,
     required String holder,
-    IUnitOfWork? uow,
   });
 }
