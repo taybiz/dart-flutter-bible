@@ -10,12 +10,9 @@ class CreateAccountUseCase {
   final IAccountRepository _repository;
   final UnitOfWork _unitOfWork;
 
-  /// Wraps the [repository] the use case delegates to, inside the required unit
-  /// of work: the create runs in it, and nothing is written outside it.
-  ///
-  /// Required, not optional — no caller can construct this operation with "no
-  /// transaction" left unsaid. A store that cannot roll back is wired with
-  /// [noOpUnitOfWork] where the use case is built (§5.5).
+  /// Wraps the [repository] in the required unit of work — required so no caller
+  /// leaves "no transaction" unsaid. A store that cannot roll back is wired with
+  /// [noOpUnitOfWork] where this operation is built (§5.5).
   const CreateAccountUseCase(this._repository, {required UnitOfWork unitOfWork})
     : _unitOfWork = unitOfWork;
 
