@@ -57,6 +57,13 @@ roles into one `sealed` root — closure only bites where a consumer composes.
 
 Datasources get their own low-level hierarchy (`DatasourceFailure` → `SerializationFailure`, `StorageFailure`, …) that repositories **map upward** into domain failures. Never leak `DatasourceFailure` past the repository; never leak `AccountFailure` into the datasource.
 
+`base` rather than plain `abstract` is what stops outside code `implements`-ing the root: the hierarchy stays a family of classes rather than an interface anybody can fake. What an open root buys is a consuming layer's family **extending** it instead of wrapping it — a wrapper charges a translation at every call *into* the package and buys nothing the subtype relation did not already give. Four rules go with the shape:
+
+- **Families are siblings under the root, never members of one another.** A consuming layer's set (`sealed class HouseholdError extends AccountFailure`) sits *beside* the package's (`AccountError`); a seam that mixes the package's calls with the consumer's own is typed at the root, and neither family is translated on the way through. The paragraph above — datasources mapping *upward* — is about the rings inside one app, never a licence to wrap a sibling package's set.
+- **Carve a family per concern, and leave the unrelated ones out.** One product may hold several `sealed` sets under its own open root (an AI add-on's, a sync engine's), and a concern whose failures never travel a seam the root's failures travel stays out of the hierarchy entirely — a serial link's failures carry their own fields, not a `message`. The test is the **seam**, not the topic: does this failure travel a seam the shared root's failures travel? Yes → a set beneath the root. No → its own hierarchy.
+- **One name per fact.** A consuming layer that needs nothing new adds **no** leaf: its set carries no not-found or internal-error of the package's kind, so a caller's whole vocabulary is two names (the package's set, the product's). Re-voicing a shared refusal is **message-only** — return the same type carrying the product's sentence, and equality and any `switch` on that leaf keep working.
+- **Leaves are `final`; a new leaf in a published set is MAJOR.** `final` is what stops a consumer extending a leaf and still switching exhaustively, and a new leaf stops every consumer's exhaustive `switch` compiling — a breaking release, not an additive one. Equality comes from the root, so a sub-root inherits `props` and declares no `Equatable` of its own.
+
 ### 4.3 Signatures
 
 ```dart

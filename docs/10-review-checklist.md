@@ -4,7 +4,7 @@
 - [ ] **10.2** Any `throw`/`try`/`catch`/`on Exception` inside domain, use cases, or datasource *business* code? (Allowed: the single `TaskEither.tryCatch`/`Either.tryCatch` wrapping the third-party call in adapter methods, and the UI ring — hand-rolled `try/catch` inside adapters is *not* allowed.)
 - [ ] **10.3** Entities immutable + equatable? Operations return new instances?
 - [ ] **10.4** Every repository contract has **≥2 repository adapters** and runs the contract suite against all of them? (A package that publishes no adapter is out of scope — §3.6 — but its contract suite, and the suite's shape, still stand.)
-- [ ] **10.5** Failures typed, layer-mapped (datasource failure ≠ domain failure leaked)?
+- [ ] **10.5** Failures typed, layer-mapped (datasource failure ≠ domain failure leaked)? A hierarchy crossing a package boundary: the root **open** (`abstract base`) with the closed set a `sealed` sibling beside it, families travelling as siblings rather than wrapped, no leaf duplicating one a shared package already owns, and seams that mix both families typed at the root?
 - [ ] **10.6** sqlite3 done with drift? Any other ORM/raw sqlite3 in the tree?
 - [ ] **10.7** Any unapproved builder/codegen (freezed, json_serializable, `riverpod_generator`, `injectable`)? If yes — why?
 - [ ] **10.8** Tests: shouldly only (no `expect()` mixing), Given/When/Then names, both Either sides covered, mocks only at the use-case seam with mocktail?
