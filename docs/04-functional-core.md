@@ -13,26 +13,47 @@
 
 ### 4.2 Failures are typed values, rust-style
 
-Failure hierarchies are per-layer, defined in the domain package, and **closed** (abstract base + final/`sealed` leaves where the language allows — a `switch` over them must be exhaustive, which is the point):
+Failure hierarchies are per-layer, defined in the domain package. **Closure belongs
+to the set a layer RETURNS, never to the root.** A `sealed` class can only be
+extended from its own library, so the moment a package's contracts are typed against
+its failure root, sealing that root forbids a consumer's own failure family and
+charges a translation at every call **into** the package instead of one at its edge.
+Two roles, two types:
+
+- the **root** — `abstract base`, open, so a consuming layer's family extends it and
+  everything composes in one channel. The seam is typed against this;
+- the **set** — `sealed`, holding this layer's own leaves, and the thing a `switch` is
+  proven exhaustive over. Match the set first (`case AccountError() => switch (...)`)
+  when the left may also carry a consumer's failure.
 
 ```dart
-sealed class AccountFailure {
+/// The shared root: open, so a consuming layer's own failures extend it.
+abstract base class AccountFailure {
   const AccountFailure();
 }
-final class AccountNotFound extends AccountFailure {
+
+/// Every way THIS layer can fail — closed, so a `switch` over it is exhaustive.
+sealed class AccountError extends AccountFailure {
+  const AccountError();
+}
+
+final class AccountNotFound extends AccountError {
   final String id;
   const AccountNotFound(this.id);
 }
-final class InsufficientFunds extends AccountFailure {
+final class InsufficientFunds extends AccountError {
   final String id;
   final double balance;
   const InsufficientFunds({required this.id, required this.balance});
 }
-final class RepositoryError extends AccountFailure {
+final class RepositoryError extends AccountError {
   final String message;
   const RepositoryError(this.message);
 }
 ```
+
+A package that never hands its failure type across a boundary may collapse the two
+roles into one `sealed` root — closure only bites where a consumer composes.
 
 Datasources get their own low-level hierarchy (`DatasourceFailure` → `SerializationFailure`, `StorageFailure`, …) that repositories **map upward** into domain failures. Never leak `DatasourceFailure` past the repository; never leak `AccountFailure` into the datasource.
 
