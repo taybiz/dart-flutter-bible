@@ -27,6 +27,11 @@ injects adapters into the app's state layer here (§8.2) — **never** below the
 - Exceptions are caught **at this boundary** and converted to UI state — never swallowed.
 - Core stays headless-buildable: zero state-management package imports (`flutter_riverpod`, `flutter_bloc`, …) in core (bible §8.2).
 
+## Ids & handles
+
+Use-case calls name the handle after its entity (`accountHandle`), never bare `handle` or
+`id`. The storage key ↔ handle map lives in the core repo's `AGENTS.md` (bible §1.5).
+
 ## Housekeeping
 
 - GUI gate is the integration test in CI, not just widget tests: `flutter test integration_test/...`.

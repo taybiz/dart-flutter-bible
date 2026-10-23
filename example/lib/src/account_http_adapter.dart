@@ -36,7 +36,7 @@ class AccountHttpAdapter {
   TaskEither<DatasourceFailure, Account> fetchAccount({required String id}) =>
       fetchRawAccount(id: id).map(
         (json) => Account(
-          id: json['id']! as String,
+          handle: json['id']! as String,
           holder: json['holder']! as String,
           balance: 0,
         ),

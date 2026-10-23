@@ -5,11 +5,11 @@
 **`shouldly`** (pronounced "should-lee"; the package is on pub.dev) is the assertion library. The idiom is plain English: `value.should.be(...)`.
 
 ```dart
-final result = await useCase.call(id: 'acct1');
+final result = await useCase.call(accountHandle: 'acct1');
 result.isRight().should.be(true);
 final account = result.getOrElse((_) => fail('expected Right'));
 account.balance.should.be(1000);
-account.id.should.be('acct1');
+account.handle.should.be('acct1');
 ```
 
 Rules:

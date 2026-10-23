@@ -17,8 +17,8 @@ Dart 3 replaces the most-tempting builders natively:
 // No freezed needed — sealed classes + exhaustive switch are built in:
 sealed class AccountFailure {}
 final class AccountNotFound extends AccountFailure {
-  final String id;
-  const AccountNotFound({required this.id});
+  final String handle;
+  const AccountNotFound({required this.handle});
 }
 ```
 

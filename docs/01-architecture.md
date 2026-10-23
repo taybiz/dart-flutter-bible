@@ -30,12 +30,12 @@ In code, the flow looks like this:
 
 ```dart
 // UI ring — the only place exceptions live:
-final result = await getAccount(id: id);
+final result = await getAccount(accountHandle: accountHandle);
 result.fold((failure) => ErrorView(failure), (account) => AccountView(account));
 
 // Application ring — a use case is a thin coordinator:
-Future<Either<AccountFailure, Account>> call({required String id}) =>
-    _repository.get(id: id);
+Future<Either<AccountFailure, Account>> call({required String accountHandle}) =>
+    _repository.get(accountHandle: accountHandle);
 ```
 
 ### 1.2 The At Least Two Repository Adapter Rule
@@ -59,8 +59,19 @@ Doctrine lives here, in exactly one place. Repo docs (README, AGENTS.md) and cod
 ### 1.4 The API surface (docs, params, style)
 
 - **Terse docs:** declarations and their public members get a `///` comment, 1–2 lines — *what* and *why*, never *how*. Never at the top of a file (that forces a `library;` directive — for barrels only). dartdoc/pub.dev-ready; the `public_member_api_docs` lint stays on. Use cases **must** be documented.
-- **Business params:** a use case's `call()` takes discrete business inputs (`id`, `userName`, …), never a cargo object (`AddUserUseCase(UserBlockOfStuff(...))`). The signature is the documentation.
+- **Business params:** a use case's `call()` takes discrete business inputs (`userHandle`, `userName`, …), never a cargo object (`AddUserUseCase(UserBlockOfStuff(...))`). An id is named after its entity, never bare (§1.5). The signature is the documentation.
 - **Named parameters** in Dart — sole exceptions: a single positional `ref`, `message`, or `value`. Flutter widgets follow Flutter conventions.
 - **One barrel per package:** `lib/<package>.dart` hand-exports the public API from `lib/src/`; never import `src/` across packages. What's in the barrel *is* the public API.
+
+### 1.5 Ids and handles: each layer names the id in its own terms
+
+An id has three owners — the business layer's handle, the wire's key, the store's column — and one value. Name it in the layer that speaks it; the adapter is where the vocabularies meet.
+
+- **Business code says the handle, qualified by its entity.** A use case's `call()` and the facade name the id after what it identifies: `accountHandle`, `deckHandle`, `cardHandle`, `mediaHandle`, `sessionHandle`. The entity's field carries the bare name (`final String handle;`) — the class is its qualifier. Never bare `handle` in a use case or the facade: a signature should say what it takes, and two ids in one signature say which is which without a doc comment.
+- **Adapters may say `id`.** DTOs, codecs, document readers and writers speak the wire's vocabulary, because that is what the wire does — a document's card is `id`, a picture is `handle`. A repository adapter's public methods are the domain contract's and keep the business names; its DTOs and mapping helpers are free to say `id`.
+- **Stored keys are data and keep their names.** A column, a JSON key, a map key belongs to whoever wrote the store; renaming it in business code renames nothing on disk. Only the adapter knows both names, which is why the translation lives there.
+- **The map is written down in the repo's `AGENTS.md`** — one row per id: storage key ↔ business handle. That is local wiring, not doctrine, so it lives in the repo (§1.3); the adapter reads the map, business code never guesses.
+
+The split costs a rename at each boundary and a table to keep current, and earns it back at the seam: `Account(handle: json['id']!)` is visibly a translation, so a wrong key fails review instead of travelling as a plausible string. A single name for all three hides the seam — and the seam is the only place the store's vocabulary can leak into a signature.
 
 ---

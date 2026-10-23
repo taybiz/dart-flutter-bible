@@ -31,7 +31,9 @@ Flutter is delivery. All the doctrine above applies *behind* it; this section is
 ```dart
 // Riverpod (the house default): a provider wraps the use case — the only seam a widget sees:
 final accountProvider = FutureProvider.autoDispose<Account>((ref) async {
-  final result = await ref.watch(getAccountUseCaseProvider)(id: accountId);
+  final result = await ref.watch(getAccountUseCaseProvider)(
+    accountHandle: accountHandle,
+  );
   return result.fold((f) => throw const AccountLoadException(), (a) => a);
 });
 
@@ -56,8 +58,8 @@ class AccountCubit extends Cubit<AccountState> {
 
   final GetAccountUseCase _getAccount;
 
-  Future<void> load(String id) async => emit(
-        (await _getAccount(id: id)).fold(
+  Future<void> load(String accountHandle) async => emit(
+        (await _getAccount(accountHandle: accountHandle)).fold(
           (f) => const AccountFailed(),
           AccountLoaded.new,
         ),

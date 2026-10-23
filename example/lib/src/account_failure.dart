@@ -4,22 +4,22 @@ sealed class AccountFailure {
   const AccountFailure();
 }
 
-/// No account exists for the requested id.
+/// No account exists for the requested handle.
 final class AccountNotFound extends AccountFailure {
-  /// The missing account id.
-  final String id;
+  /// The missing account handle.
+  final String handle;
 
-  /// Creates a not-found failure for [id].
-  const AccountNotFound({required this.id});
+  /// Creates a not-found failure for [handle].
+  const AccountNotFound({required this.handle});
 }
 
-/// The account already exists; ids must be unique.
+/// The account already exists; handles must be unique.
 final class AccountAlreadyExists extends AccountFailure {
-  /// The duplicate account id.
-  final String id;
+  /// The duplicate account handle.
+  final String handle;
 
-  /// Creates an already-exists failure for [id].
-  const AccountAlreadyExists({required this.id});
+  /// Creates an already-exists failure for [handle].
+  const AccountAlreadyExists({required this.handle});
 }
 
 /// The backing store failed while reading; mapped up from `DatasourceFailure`.

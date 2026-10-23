@@ -9,22 +9,24 @@ class InMemoryAccountRepository implements IAccountRepository {
   final Map<String, Account> _accounts = {};
 
   @override
-  Future<Either<AccountFailure, Account>> get({required String id}) async {
-    final account = _accounts[id];
-    if (account == null) return Left(AccountNotFound(id: id));
+  Future<Either<AccountFailure, Account>> get({
+    required String accountHandle,
+  }) async {
+    final account = _accounts[accountHandle];
+    if (account == null) return Left(AccountNotFound(handle: accountHandle));
     return Right(account);
   }
 
   @override
   Future<Either<AccountFailure, Account>> create({
-    required String id,
+    required String accountHandle,
     required String holder,
   }) async {
-    if (_accounts.containsKey(id)) {
-      return Left(AccountAlreadyExists(id: id));
+    if (_accounts.containsKey(accountHandle)) {
+      return Left(AccountAlreadyExists(handle: accountHandle));
     }
-    final account = Account(id: id, holder: holder, balance: 0);
-    _accounts[id] = account;
+    final account = Account(handle: accountHandle, holder: holder, balance: 0);
+    _accounts[accountHandle] = account;
     return Right(account);
   }
 }

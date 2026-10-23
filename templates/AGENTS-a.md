@@ -30,6 +30,18 @@ restated (bible §1.3 D.R.Y.).
     code clearly in the wrong — is a `BACKLOG.md` item to fix, never a deviation
     to accept.
 
+## Ids & handles
+
+Business code names the handle after its entity (`accountHandle`, `deckHandle`); adapters
+(DTOs, codecs, document readers/writers) may say `id` — the wire's word. Stored keys keep
+their names; one row per id that crosses a boundary:
+
+| Stored key | Business handle |
+|---|---|
+| `<table.column / JSON key>` | `<entityHandle>` |
+
+Doctrine: bible §1.5. The adapter translates; business code never guesses.
+
 ## Housekeeping
 
 - CI entry point: `melos run <task>` (`analyze`, `test`, …) from the workspace root.
