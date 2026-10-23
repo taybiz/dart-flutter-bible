@@ -18,9 +18,10 @@ class CreateAccountUseCase {
 
   /// Creates the account, or [AccountAlreadyExists].
   Future<Either<AccountFailure, Account>> call({
-    required String id,
+    required String accountHandle,
     required String holder,
   }) => _unitOfWork<AccountFailure, Account>(
-    body: () => _repository.create(id: id, holder: holder),
+    body: () =>
+        _repository.create(accountHandle: accountHandle, holder: holder),
   );
 }

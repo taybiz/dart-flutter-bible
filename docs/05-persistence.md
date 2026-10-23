@@ -43,12 +43,14 @@ Atomicity belongs to a business **operation**, not to a single write — "delete
 
 ```dart
 abstract interface class IAccountRepository {
-  /// Returns the account with [id].
-  Future<Either<AccountFailure, Account>> get({required String id});
+  /// Returns the account with [accountHandle].
+  Future<Either<AccountFailure, Account>> get({
+    required String accountHandle,
+  });
 
   /// Creates an account.
   Future<Either<AccountFailure, Account>> create({
-    required String id,
+    required String accountHandle,
     required String holder,
   });
 }
@@ -66,10 +68,10 @@ class CreateAccountUseCase {
 
   /// Creates the account, or [AccountAlreadyExists].
   Future<Either<AccountFailure, Account>> call({
-    required String id,
+    required String accountHandle,
     required String holder,
   }) => _unitOfWork<AccountFailure, Account>(
-    body: () => _repository.create(id: id, holder: holder),
+    body: () => _repository.create(accountHandle: accountHandle, holder: holder),
   );
 }
 ```
@@ -83,7 +85,7 @@ typedef UnitOfWork = Future<Either<F, T>> Function<F, T>({
 ```
 
   It is `Either`-aware because **rollback is a value, not an exception**: a body that fails answers `Left`, the adapter undoes the writes, and `F` stays the *caller's* failure type. Assigning a closure to this type is checked at the exact signature, so a transactional adapter writes a closure over its own client and keeps its state for free.
-- **An operation that must be atomic takes one as a required constructor dependency.** Required rather than optional, because an optional `uow` lets `DeleteInstance(id: x)` compile and quietly mean *no transaction* — the same thing a store that cannot roll back means, with nothing at the call site to tell them apart. The criterion that picks the set: the operation **steps more than once**, or it **decides a rule by reading and then writes**. A single read steps once and takes nothing. The seam is infrastructure, so it goes on the constructor — the business signature stays `call({required String id})`.
+- **An operation that must be atomic takes one as a required constructor dependency.** Required rather than optional, because an optional `uow` lets `DeleteInstance(instanceHandle: x)` compile and quietly mean *no transaction* — the same thing a store that cannot roll back means, with nothing at the call site to tell them apart. The criterion that picks the set: the operation **steps more than once**, or it **decides a rule by reading and then writes**. A single read steps once and takes nothing. The seam is infrastructure, so it goes on the constructor — the business signature stays `call({required String accountHandle})`.
 - **"This store cannot roll back" is stated once, at the composition root**, by wiring `noOpUnitOfWork`. *Required* means the dependency is *stated*, not that a transaction is *implemented*: a memory or JSON store passes the no-op and writes no adapter.
 - **An operation that composes others owns the only unit** and builds the pieces it composes itself, wired with the no-op — so a unit never nests. Stores are not obliged to support nested transactions (SQLite has none).
 - **Enrollment is per operation, not per write.** A consumer hands their own `UnitOfWork` to the operation they construct. They cannot take a single write of one into their own transaction, because a write is not the unit of atomicity.
@@ -102,5 +104,6 @@ typedef UnitOfWork = Future<Either<F, T>> Function<F, T>({
 
 - Repositories orchestrate and validate; datasources do mechanical I/O. No business logic in a datasource, no I/O in a repository.
 - All datasource methods return `Either`/`TaskEither` with the datasource failure hierarchy. `tryCatch` lives here.
+- **The adapter owns the naming map (§1.5).** Repository methods keep the business names (`accountHandle`); DTOs, codecs, document readers and writers may say `id`, because that is the wire's word. Stored keys keep their names, and the key↔handle map lives in the repo's `AGENTS.md` — the adapter translates, business code never guesses.
 
 ---

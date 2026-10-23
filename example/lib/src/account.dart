@@ -2,8 +2,8 @@ import 'package:equatable/equatable.dart';
 
 /// A customer account: the core domain entity.
 class Account extends Equatable {
-  /// Stable unique identifier.
-  final String id;
+  /// Stable handle: the account's public identifier.
+  final String handle;
 
   /// Display name of the account owner.
   final String holder;
@@ -13,15 +13,15 @@ class Account extends Equatable {
 
   /// Creates an account with the given fields.
   const Account({
-    required this.id,
+    required this.handle,
     required this.holder,
     required this.balance,
   });
 
   /// Returns a copy with [amount] credited; the receiver is never mutated.
   Account deposit({required double amount}) =>
-      Account(id: id, holder: holder, balance: balance + amount);
+      Account(handle: handle, holder: holder, balance: balance + amount);
 
   @override
-  List<Object?> get props => [id, holder, balance];
+  List<Object?> get props => [handle, holder, balance];
 }

@@ -25,18 +25,22 @@ class AccountRepositoryImpl implements IAccountRepository {
   AccountRepositoryImpl({required this.adapter});
 
   @override
-  Future<Either<AccountFailure, Account>> get({required String id}) =>
-      adapter.fetchAccount(id: id).mapLeft(mapDatasourceFailure).run();
+  Future<Either<AccountFailure, Account>> get({
+    required String accountHandle,
+  }) => adapter
+      .fetchAccount(id: accountHandle)
+      .mapLeft(mapDatasourceFailure)
+      .run();
 
   @override
   Future<Either<AccountFailure, Account>> create({
-    required String id,
+    required String accountHandle,
     required String holder,
   }) => adapter
-      .fetchRawAccount(id: id)
+      .fetchRawAccount(id: accountHandle)
       .map(
         (json) => Account(
-          id: json['id']! as String,
+          handle: json['id']! as String,
           holder: json['holder']! as String,
           balance: 0,
         ),

@@ -9,12 +9,12 @@ import 'account_failure.dart';
 /// needs one (§5.5), so an implementer writes these methods without knowing who
 /// owns a unit of work.
 abstract interface class IAccountRepository {
-  /// Returns the account with [id].
-  Future<Either<AccountFailure, Account>> get({required String id});
+  /// Returns the account with [accountHandle].
+  Future<Either<AccountFailure, Account>> get({required String accountHandle});
 
   /// Creates an account.
   Future<Either<AccountFailure, Account>> create({
-    required String id,
+    required String accountHandle,
     required String holder,
   });
 }

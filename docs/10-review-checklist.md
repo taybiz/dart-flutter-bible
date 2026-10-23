@@ -9,7 +9,7 @@
 - [ ] **10.7** Any unapproved builder/codegen (freezed, json_serializable, `riverpod_generator`, `injectable`)? If yes — why?
 - [ ] **10.8** Tests: shouldly only (no `expect()` mixing), Given/When/Then names, both Either sides covered, mocks only at the use-case seam with mocktail?
 - [ ] **10.9** Every declaration and public member carries a terse `///` doc comment (1–2 lines, what+why)? **No `///` file headers** (that forces a `library;` — barrel files only)? Use cases documented?
-- [ ] **10.10** Use-case `call()` takes discrete business params (`id`, `userName`, …), never cargo/container objects?
+- [ ] **10.10** Use-case `call()` takes discrete business params (`userHandle`, `userName`, …), never cargo/container objects — and an id is named after its entity (qualified handle in business code, `id` only in adapters/DTOs; stored keys keep their names; the key↔handle map is in `AGENTS.md`, §1.5)?
 - [ ] **10.11** Dart named parameters everywhere (sole exceptions: single positional `ref`/`message`/`value`)? Flutter widgets follow Flutter conventions?
 - [ ] **10.12** One hand-written barrel per package (`lib/<package>.dart` re-exports `lib/src/`), no `src/` imports across packages?
 - [ ] **10.13** Every operation that steps more than once (or decides a rule by reading and then writes) takes a **required** `UnitOfWork` — and the repository contracts stay transaction-free: no `uow` parameter, no `clearAll`? A store that cannot roll back is wired with `noOpUnitOfWork` at the composition root, stated rather than defaulted? The adapter keeps the seam — publishes the open unit, routes every read through it, joins on re-entrance, retries a busy store?

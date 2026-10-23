@@ -14,7 +14,7 @@ void main() {
 
         expect(result.isRight(), isTrue);
         expect(
-          result.getOrElse((_) => throw StateError('expected Right')).id,
+          result.getOrElse((_) => throw StateError('expected Right')).handle,
           'acct-1',
         );
       },
@@ -44,7 +44,7 @@ void main() {
         adapter: AccountHttpAdapter(client: client),
       );
 
-      final result = await repository.get(id: 'acct-9');
+      final result = await repository.get(accountHandle: 'acct-9');
 
       expect(result.isLeft(), isTrue);
       result.fold(

@@ -38,13 +38,13 @@ sealed class AccountError extends AccountFailure {
 }
 
 final class AccountNotFound extends AccountError {
-  final String id;
-  const AccountNotFound(this.id);
+  final String handle;
+  const AccountNotFound(this.handle);
 }
 final class InsufficientFunds extends AccountError {
-  final String id;
+  final String handle;
   final double balance;
-  const InsufficientFunds({required this.id, required this.balance});
+  const InsufficientFunds({required this.handle, required this.balance});
 }
 final class RepositoryError extends AccountError {
   final String message;
@@ -68,15 +68,15 @@ Datasources get their own low-level hierarchy (`DatasourceFailure` → `Serializ
 
 ```dart
 abstract class IAccountRepository {
-  /// Returns the account with [id], or [AccountNotFound].
-  Future<Either<AccountFailure, Account>> get({required String id});
+  /// Returns the account with [accountHandle], or [AccountNotFound].
+  Future<Either<AccountFailure, Account>> get({required String accountHandle});
 
   /// Returns every account, oldest first.
   Future<Either<AccountFailure, List<Account>>> list();
 
-  /// Credits [amount] to the account with [id].
+  /// Credits [amount] to the account with [accountHandle].
   Future<Either<AccountFailure, Account>> deposit(
-      {required String id, required double amount});
+      {required String accountHandle, required double amount});
 }
 ```
 
@@ -88,15 +88,16 @@ class GetAccountUseCase {
   final IAccountRepository _repository;
   const GetAccountUseCase(this._repository);
 
-  /// Returns the account with [id], or [AccountNotFound].
-  Future<Either<AccountFailure, Account>> call({required String id}) =>
-      _repository.get(id: id);
+  /// Returns the account with [accountHandle], or [AccountNotFound].
+  Future<Either<AccountFailure, Account>> call({
+    required String accountHandle,
+  }) => _repository.get(accountHandle: accountHandle);
 }
 ```
 
 ### 4.4 Use-case parameters: business params, not cargo
 
-A use case's `call()` takes the **actual business inputs** as discrete named parameters — `AddUserUseCase` receives `id`, `userName`, `email`, … — never a cargo/container object (`AddUserUseCase(UserBlockOfStuff(...))`).
+A use case's `call()` takes the **actual business inputs** as discrete named parameters — `AddUserUseCase` receives `userHandle`, `userName`, `email`, … — never a cargo/container object (`AddUserUseCase(UserBlockOfStuff(...))`). An id is named after its entity and qualified by it (`userHandle`, `accountHandle`), never bare `id` or bare `handle`: the call site must read as the operation (§1.5).
 
 Why:
 - The signature *is* the documentation; a call site reads like the business operation.
@@ -111,8 +112,11 @@ Why:
 ```dart
 final result = await Either.Do(
   ($) async {
-    final account = await $(repository.get(id: id));
-    final updated = await $(repository.deposit(id: account.id, amount: 100));
+    final account = await $(repository.get(accountHandle: accountHandle));
+    final updated = await $(repository.deposit(
+      accountHandle: account.handle,
+      amount: 100,
+    ));
     return updated;
   },
 );

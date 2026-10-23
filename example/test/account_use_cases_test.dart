@@ -12,21 +12,27 @@ void main() {
 
     group('When creating an account with valid business params', () {
       test('Then it returns the created account (Right side)', () async {
-        final result = await useCase.call(id: 'acct-1', holder: 'Alice');
+        final result = await useCase.call(
+          accountHandle: 'acct-1',
+          holder: 'Alice',
+        );
 
         result.isRight().should.be(true);
         result
             .getOrElse((_) => throw StateError('expected Right'))
-            .id
+            .handle
             .should
             .be('acct-1');
       });
     });
 
-    group('When creating an account whose id already exists', () {
+    group('When creating an account whose handle already exists', () {
       test('Then it returns AccountAlreadyExists (Left side)', () async {
-        await useCase.call(id: 'acct-1', holder: 'Alice');
-        final result = await useCase.call(id: 'acct-1', holder: 'Bob');
+        await useCase.call(accountHandle: 'acct-1', holder: 'Alice');
+        final result = await useCase.call(
+          accountHandle: 'acct-1',
+          holder: 'Bob',
+        );
 
         result.isLeft().should.be(true);
         result
@@ -43,9 +49,9 @@ void main() {
   group('Given a GetAccountUseCase on an empty repository', () {
     final useCase = GetAccountUseCase(InMemoryAccountRepository());
 
-    group('When fetching an unknown id', () {
+    group('When fetching an unknown handle', () {
       test('Then it returns AccountNotFound (Left side)', () async {
-        final result = await useCase.call(id: 'missing');
+        final result = await useCase.call(accountHandle: 'missing');
 
         result.isLeft().should.be(true);
         result
@@ -71,7 +77,10 @@ void main() {
 
     group('When creating an account', () {
       test('Then the operation enters its unit of work exactly once', () async {
-        final result = await useCase.call(id: 'acct-2', holder: 'Carol');
+        final result = await useCase.call(
+          accountHandle: 'acct-2',
+          holder: 'Carol',
+        );
 
         result.isRight().should.be(true);
         entries.should.be(1);
