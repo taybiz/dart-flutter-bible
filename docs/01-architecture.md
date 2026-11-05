@@ -50,7 +50,7 @@ In-memory adapters count as a legitimate second adapter, and they double as the 
 
 Doctrine lives here, in exactly one place. Repo docs (README, AGENTS.md) and code comments **reference** a rule; they never restate it — a second copy is a second truth the moment the first one changes.
 
-- The bible is the doctrine source. A repo's AGENTS.md records only that repo's deviations and local wiring; READMEs orient (what it is, how to run it) and carry no rules or architecture.
+- The bible is the doctrine source. A repo's AGENTS.md records only that repo's deviations and local wiring; READMEs orient (what it is, how to run it) and carry no rules or architecture — the README's own contract is §1.6.
 - If a rule already exists, link to it — do not copy it into another doc.
 - Any fact stated twice will drift; when two copies disagree, both are suspect and the fix is deletion, not reconciliation.
 - **Repo docs hold separate jobs so none of them becomes a diary.** `BACKLOG.md` is a queue, not a warstory: one terse entry per unique, actionable item, each pick-up-able whole by automation — never a narrative, rationale, or metanarrative. The keen, non-obvious decisions and the *why* belong in `CHANGELOG.md`; the "keep your footing here" operational knowledge (deviations, local wiring, pitfalls) belongs in `AGENTS.md`. A fact that lands in two of these will drift — move it to its one home, don't restate it.
@@ -73,5 +73,15 @@ An id has three owners — the business layer's handle, the wire's key, the stor
 - **The map is written down in the repo's `AGENTS.md`** — one row per id: storage key ↔ business handle. That is local wiring, not doctrine, so it lives in the repo (§1.3); the adapter reads the map, business code never guesses.
 
 The split costs a rename at each boundary and a table to keep current, and earns it back at the seam: `Account(handle: json['id']!)` is visibly a translation, so a wrong key fails review instead of travelling as a plausible string. A single name for all three hides the seam — and the seam is the only place the store's vocabulary can leak into a signature.
+
+### 1.6 The README: orient, never dictate — and never go stale
+
+A README answers one question — *what is this, and how do I start it?* — and stops. It is the front door, not the rulebook. A README that tells you how the work must be done, or states a fact the code already owns, is a second copy of something: it drifts the moment that something moves, and the reader has no way to tell which of the two is the lie.
+
+- **The closed list.** A repo README carries the name (matching `pubspec.yaml`), one paragraph of what this is and who it is for, how to get it running (the real commands, taken from the script contract — §2.1), where the docs live (the bible for doctrine, `AGENTS.md` for this repo's local wiring), and license or status when it isn't obvious. Nothing else. Anything else is doctrine (link it), local wiring (`AGENTS.md`), a decision and its *why* (`CHANGELOG.md`), or work to be done (`BACKLOG.md`).
+- **The dictate test.** Two kinds of sentence live here. *What this is* — orientation. *How you must work* — an instruction, and instructions are doctrine: "all persistence goes through a `UnitOfWork`" belongs in §5, not on a front door. Read every imperative in a README; if it is telling a developer what the rules are, it is doctrine in the wrong file — delete it and link the rule.
+- **The staleness test — the one that actually bites.** The rot that costs you is not duplication, it is age: a command whose flag was renamed, a package name that changed, a port that moved, an error style that flipped from exceptions to `Either`. Every operational claim a README makes must be true of the code **as of the commit that carries it**, and the change that makes one false is the change that fixes it — same commit. A README that has been wrong for three weeks makes every other document in the repo suspect.
+- **Point, don't copy.** A copy can contradict its source; a pointer cannot. So a README names the thing instead of restating it — the script (`melos run test`), the schema file (`config.example.yaml`), the barrel. A README *may* state a declaration about this package's own public surface — the error style is the case §4.9 requires (§10.20) — and where it does, the barrel's doc comment is the authority and the README says the same words, not a paraphrase.
+- **If a claim can be checked, check it — don't trust the sentence.** "The README is truthful" is a test, not a hope. The links and paths it names resolve; the melos script it tells you to run exists in the `melos:` block; the package it titles itself with is the `name:` in `pubspec.yaml`. Machine-check what a machine can check (§2.8) and keep only the register in review.
 
 ---

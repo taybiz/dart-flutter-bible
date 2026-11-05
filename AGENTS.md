@@ -17,4 +17,5 @@ This is the **Dart/Flutter Bible**: a standards repo (doctrine docs + CI-tested 
 ## Housekeeping
 
 - The GitHub wiki auto-syncs from `docs/` on every push to `main` — no manual wiki step.
+- **README claims are gated.** `example/test/readme_contract_test.dart` reads `README.md` and `example/README.md` as data and resolves what they name: the links and paths exist, every `melos run <task>` is in the `melos:` block, the package the sample names is its `name:`. Rename a doc, a script or the package and CI goes red — fix the README in the same change (bible §1.6).
 - Keep the working tree clean before committing: `dart format`; `dart analyze --fatal-infos --fatal-warnings` reporting **zero diagnostics of any severity** (errors, warnings, infos — "clean" means literally nothing); `dart test`.
