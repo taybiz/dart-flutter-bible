@@ -170,7 +170,7 @@ Know what we build: **cores** (pure-Dart libraries), **packages** (published to 
 
 - **Tests are the default home for all example code** — fully exercised and documented there. If it compiles and demonstrates something, it belongs in a test before anywhere else.
 - **`example/` is a package deliverable.** pub.dev builds its Example tab from an `example/` directory — singular, per the [package layout](https://dart.dev/tools/pub/package-layout) convention (`example/README.md`, `example/example.dart` or `example/lib/main.dart`). So published packages get a real, CI-tested `example/`; `examples/` (plural) is not the pub.dev convention. Non-published deliverables (cores, CLIs, TUIs, GUIs) skip it unless there's a genuine need — e.g., a core ships a small facade example so GUI implementers can see the seam wired. Otherwise: tests.
-- **Example code does not go in READMEs or prose documentation**, with the very smallest exceptions (a one-line command, a filename). The doctrine docs themselves may carry small illustrative snippets — tight, not piles — but anything that must compile and stay true is a test or `example/`.
+- **Example code does not go in READMEs or prose documentation**, with the very smallest exceptions (a one-line command, a filename). The doctrine docs themselves may carry small illustrative snippets — tight, not piles — but anything that must compile and stay true is a test or `example/`. What a README carries at all is its own contract: §1.6.
 
 See `example/` (`bible_samples`) for the CI-tested reference.
 
@@ -184,6 +184,7 @@ Not every rule in this bible can be automated. Know which is which:
 
 **Test-enforced (self-enforcing — `dart test` is the gate):**
 - Package-boundary direction + cycle-freedom — a `dart_arch_test` `test()` (§2.9) asserts inward direction over the **resolved import graph** (package-aware; the glob DSL is package-name-blind) and workspace-wide cycle-freedom. Expressed as a test so CI already runs it; no separate gate to remember.
+- README claims — a README that names paths, links, melos scripts or the package name is checkable (§1.6). A small gate reads the README as data and resolves each claim: the referenced files exist, the `melos run <task>` names are in the `melos:` block, the title's package is the `name:` in `pubspec.yaml`. The artifact is the README; the authority is the filesystem, the `melos:` block and the pubspec. This is the only automated defence against README rot, and it is a short test.
 
 **Review-enforced (no automated check exists — don't invent one):**
 - Cargo/business params — that's intent, not syntax. No rule can tell a container from a cohesive value object.
