@@ -22,7 +22,7 @@
 | [11 — Decisions & Roadmap](docs/11-decisions.md) | Settled doctrine (state management, DI, navigation) + roadmap |
 | [12 — Sources of Truth](docs/12-sources.md) | Canonical packages and docs |
 | [13 — Config & Settings](docs/13-config-and-settings.md) | CLI/TUI config precedence, env, defaults |
-| [Repo-doc templates](templates/README.md) | Copyable AGENTS/BACKLOG/CHANGELOG/README scaffolds per topology |
+| [Repo-doc templates](templates/README.md) | Copyable AGENTS/queue/CHANGELOG/README scaffolds per topology |
 
 ## Wiki
 

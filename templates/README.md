@@ -11,14 +11,14 @@ restated (§1.3 D.R.Y.). Deviations and local wiring are the only things you fil
 | `AGENTS-b.md` | Topology B — core repo (the domain/usecases/datasources/CLI side) | Core is pure Dart, headless; the facade seam; git-dep + override workflow |
 | `AGENTS-ui.md` | Topology B — UI repo (the Flutter side) | Widgets-only boundary, composition root, integration-test gate |
 | `AGENTS-c.md` | Topology C — single-package repo | Package-as-workspace-root, `melos:` key in pubspec, release flow |
-| `BACKLOG.md` | any | Queue, not a diary: terse actionable entries, Open / Done |
+| `BACKLOG.md` | any | Queue, not a diary: terse actionable entries, Open / Done. A repo that adopts a Backlog.md `backlog/` board drops this file — the board is the queue |
 | `CHANGELOG.md` | any | Keen decisions and the *why*, grouped by release |
 | `README-project.md` | any | The closed list only (bible §1.6): name, what it is, `melos run <task>` to start, where the docs live, license |
 
 ## How to use
 
 1. Copy the template(s) for your topology into the new repo as `AGENTS.md`,
-   `BACKLOG.md`, `CHANGELOG.md`, and `README.md` (from `README-project.md`).
+   `CHANGELOG.md`, a queue (`BACKLOG.md`, or a Backlog.md board), and `README.md` (from `README-project.md`).
 2. Replace the `<placeholders>` (`<project>`, `<thing>_domain`, `<thing_core>`, …).
 3. Delete the explanatory "Deviations" stub if it stays empty, or keep it as a
    deliberate "none". The D.R.Y. rule stands: don't copy doctrine rules into these files.
