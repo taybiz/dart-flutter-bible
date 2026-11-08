@@ -1,5 +1,8 @@
 # BACKLOG — <project>
 
+> A repo that adopts a Backlog.md board replaces this file with `backlog/` — do
+> not keep both (bible §1.3).
+
 Proposed, actionable work. This is a **queue, not a diary** (bible §1.3): one
 terse entry per unique, pick-up-able item. No narrative, no rationale — the *why*
 lives in `CHANGELOG.md`, the operational knowledge lives in `AGENTS.md`. Each entry

@@ -38,7 +38,7 @@ resolve in the UI's composition root, never in core packages.
 - _None yet._
   - Note: a deviation is only "deliberate" when the bible is vague or wrong and
     this repo must live with the divergence (bible §1.3). A **fixable defect** —
-    code clearly in the wrong — is a `BACKLOG.md` item to fix, never a deviation
+    code clearly in the wrong — is an item in the repo's queue to fix, never a deviation
     to accept.
 
 ## Ids & handles
