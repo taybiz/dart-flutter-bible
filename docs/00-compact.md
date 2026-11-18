@@ -74,11 +74,12 @@
 
 ## CONFIG & SETTINGS (§13)
 - CLI/TUI apps must support 3-layer config precedence: (1) `--config`/`-c` flag trumps all, (2) env vars, (3) default config file. The `--config` flag is the *only* hard-error path (file missing → exit non-zero).
+- `--config` REPLACES the default config file — the two are alternatives, not layers: while the flag is given the default path is NOT read (only one config file is ever read), so a key that lives only in the default file is not applied. Keys the given file omits still fall through to env vars → built-in defaults.
 - Default config path follows OS conventions: Linux `$XDG_CONFIG_HOME/<app>/config` or `$HOME/.config/`, macOS `~/Library/Application Support/`, Windows `%APPDATA%\<app>\config`.
 - YAML default format (`package:yaml`); schema documented in README with a `config.example.yaml` in the repo.
-- Read sources in reverse precedence order (default → env → explicit) and merge; absent sources skip, never crash.
+- Read sources in reverse precedence order and merge, skipping absent sources: built-in defaults → default config file (skipped when `--config` is given) → env vars → `--config` file; never crash.
 - Distinguish config (startup, hand-edited, one-shot) from app settings (runtime, UI-managed, reactive). Secrets never in config files → env vars or platform secret stores.
-- CI-gated: tests prove every precedence layer (env trumps default, `--config` trumps env, missing `--config` exits non-zero).
+- CI-gated: tests prove every precedence layer (env trumps default, `--config` trumps env, missing `--config` exits non-zero) AND the replacement (a key only in the default file is absent when `--config` is given).
 
 ## DECISIONS (settled; §11 = human change record, doctrine wins)
 - Error style: declared per package (barrel + README + AGENTS.md on deviation); FP-style tuples are the default, plain exceptions only at the outermost ring (Flutter UI or CLI/TUI composition root).
