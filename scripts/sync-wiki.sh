@@ -61,6 +61,7 @@ sed -i \
   -e 's|](docs/10-review-checklist.md)|](Review-Checklist)|g' \
   -e 's|](docs/11-decisions.md)|](Decisions-and-Roadmap)|g' \
   -e 's|](docs/12-sources.md)|](Sources-of-Truth)|g' \
+  -e 's|](docs/13-config-and-settings.md)|](Config-and-Settings)|g' \
   -e "s|](docs/00-compact.md)|](https://github.com/${REPO}/blob/main/docs/00-compact.md)|g" \
   -e "s|](LICENSE)|](https://github.com/${REPO}/blob/main/LICENSE)|g" \
   Home.md
@@ -77,6 +78,7 @@ copy_page 09-bootstrap-checklist  Bootstrap-Checklist
 copy_page 10-review-checklist     Review-Checklist
 copy_page 11-decisions            Decisions-and-Roadmap
 copy_page 12-sources              Sources-of-Truth
+copy_page 13-config-and-settings  Config-and-Settings
 
 cat > _Sidebar.md <<'SIDEBAR'
 **Dart/Flutter Bible**
@@ -93,6 +95,7 @@ cat > _Sidebar.md <<'SIDEBAR'
 - [Review Checklist](Review-Checklist)
 - [Decisions & Roadmap](Decisions-and-Roadmap)
 - [Sources of Truth](Sources-of-Truth)
+- [Config & Settings](Config-and-Settings)
 SIDEBAR
 
 git add -A
