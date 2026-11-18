@@ -10,21 +10,27 @@ Configuration sources are **layered**. Higher-precedence sources override lower 
 |---|---|---|
 | 1 (highest) | `--config` / `-c` CLI flag | The user explicitly pointed at a file |
 | 2 | Environment variables | Per-session or system-level overrides |
-| 3 (lowest) | Default config file | Platform-standard path, always loaded |
+| 3 (lowest) | Default config file | Platform-standard path; loaded **unless** `--config` is given |
 
 **Rule:** every source must be readable independently. If a source is absent (no `--config` flag, no env var, no config file at the default path), the next source down is used. If all sources are absent, the application uses its built-in defaults — never crash.
 
+**`--config` and the default config file are alternatives, not layers.** Passing `--config` *replaces* the default file: the default path is not read at all, so a key that lives only in the default file is not applied. This matters most when the two files disagree — the flag is the user saying "read this, not the one you would have found", which is what makes a CLI config reproducible in CI. Keys the specified file omits still fall through — to env vars, then built-in defaults.
+
 ```
-CLI --config path → reads that file (trumps everything)
+--config given?
   │
-  ├─ key present?  → use that value
-  └─ key absent?   → fall through to env vars
-                        │
-                        ├─ key set?  → use env var value
-                        └─ key unset? → fall through to default config file
-                                           │
-                                           ├─ key in file? → use that value
-                                           └─ key absent?  → use built-in default
+  ├─ yes → read that file (it trumps everything)
+  │        ├─ key present? → use that value
+  │        └─ key absent?  → fall through to env vars
+  │                            ├─ key set?   → use env var value
+  │                            └─ key unset? → use built-in default
+  │        (the default config file is never read)
+  │
+  └─ no  → env vars
+             ├─ key set?   → use env var value
+             └─ key unset? → default config file
+                               ├─ key in file? → use that value
+                               └─ key absent?  → use built-in default
 ```
 
 ### 13.2 CLI: `--config` / `-c`
@@ -33,7 +39,7 @@ Every CLI application **must** accept a `--config` / `-c` flag that accepts a pa
 
 - That file is **the only** config file read — the default path is skipped entirely.
 - It **trumps every environment variable** for keys it contains.
-- A key *not* present in the specified file falls through to env vars → built-in defaults as normal.
+- A key *not* present in the specified file falls through to env vars → built-in defaults as normal — **not** to the default config file, which is not in the chain while the flag is given.
 - The file must exist and be readable; a missing or unreadable `--config` path is a hard error (print an error and exit non-zero). This is the one case where the app fails: the user told you exactly where to read.
 
 ```dart
@@ -46,7 +52,7 @@ ArgParser()..addOption('config', abbr: 'c', help: 'Path to config file');
 
 Environment variables are the **per-session override** — handy for CI, containers, shell aliases, and secrets the user doesn't want in a file.
 
-- Env vars **always** trump values in the **default** config file.
+- Env vars **always** trump values in the **default** config file (which is only in the chain when `--config` is absent, §13.1).
 - Env vars are **overridden** by values in a `--config`-specified file.
 - Prefer a naming convention: e.g. `MYAPP_LOG_LEVEL`, `MYAPP_DB_PATH`.
 
@@ -124,23 +130,27 @@ Whatever the format, **document the config schema** in the project README and ke
 
 ### 13.6 Merging: Layered Config in Code
 
-Read sources in **reverse precedence order** (lowest first) and overlay:
+Read sources in **reverse precedence order** (lowest first) and overlay, **skipping any source that is absent**. The default config file is a source only while `--config` is absent — the flag removes it from the chain, so a key that exists *only* in the default file is not applied when a `--config` file is passed.
 
 ```dart
 Config loadConfig({String? configPath}) {
-  // 1. Start with empty defaults (or built-in constants).
+  // 1. Start with built-in defaults.
   var config = Config();
 
-  // 2. Load the default config file, if it exists.
-  final defaultFile = File(defaultConfigPath('myapp'));
-  if (defaultFile.existsSync()) {
-    config = config.merge(parseFile(defaultFile));
+  // 2. Load the default config file — ONLY when --config was not given.
+  //    --config REPLACES this layer; it does not overlay on top of it.
+  if (configPath == null) {
+    final defaultFile = File(defaultConfigPath('myapp'));
+    if (defaultFile.existsSync()) {
+      config = config.merge(parseFile(defaultFile));
+    }
   }
 
   // 3. Overlay env vars (only keys that are set).
   config = config.merge(parseEnvVars(Platform.environment));
 
   // 4. If --config was given, load THAT file (it trumps everything).
+  //    A missing --config path is a hard error: the user named the file.
   if (configPath != null) {
     config = config.merge(parseFile(File(configPath)));
   }
@@ -149,7 +159,7 @@ Config loadConfig({String? configPath}) {
 }
 ```
 
-Because env vars trump the default config but are trumped by `--config`, the layering order naturally produces the right precedence: load defaults → overlay env → overlay explicit.
+Env vars sit above the default config file and below `--config`, so once the default layer is guarded the layering order produces the right precedence on its own: built-in defaults → default config file (absent when `--config` is given) → env vars → `--config` file.
 
 ### 13.7 App Settings (persistent user preferences)
 
@@ -174,7 +184,7 @@ The `--config` flag is not a secrets workaround — a file on disk is no more se
 
 ### 13.9 Rule: Default Config + Env Override + CLI Override
 
-Every CLI/TUI application **must** implement the three-layer precedence chain from §13.1. This is a CI-gated rule: the test suite must include at least one test per layer proving correct override behaviour (e.g. env var trumps default config, `--config` trumps env var, `--config` file missing exits non-zero).
+Every CLI/TUI application **must** implement the three-layer precedence chain from §13.1. This is a CI-gated rule: the test suite must include at least one test per layer proving correct override behaviour (e.g. env var trumps default config, `--config` trumps env var, `--config` file missing exits non-zero). It must also prove the **replacement**: a key that exists only in the default config file is *absent* when `--config` is given, since the default path is not read.
 
 ---
 
