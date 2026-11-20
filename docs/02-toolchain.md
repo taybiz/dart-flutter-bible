@@ -23,6 +23,8 @@ In an agent-run world it earns this place because:
 
 What melos is **not**: the orchestrator. It enforces no boundary direction — that is `dart_arch_test`'s job (§2.9). The `melos.yaml` file is a leftover from an older setup: it was deleted in **melos 7.0.0** in favor of the root `pubspec.yaml`, so a repo still carrying one is on 6.x or earlier and should be migrated. Config lives in the **root `pubspec.yaml`** under a `melos:` key.
 
+Because the `melos:` block is the *only* place a build step is defined, those scripts **are** our CI/CD: the gate and the release run from them, never from a hosted service (§2.10).
+
 Root `pubspec.yaml`:
 
 ```yaml
@@ -169,10 +171,10 @@ Each package exposes **exactly one public entry point**: `lib/<package_name>.dar
 Know what we build: **cores** (pure-Dart libraries), **packages** (published to pub.dev), **CLIs**, **TUIs**, **GUIs** (Flutter). Where example code lives depends on the deliverable:
 
 - **Tests are the default home for all example code** — fully exercised and documented there. If it compiles and demonstrates something, it belongs in a test before anywhere else.
-- **`example/` is a package deliverable.** pub.dev builds its Example tab from an `example/` directory — singular, per the [package layout](https://dart.dev/tools/pub/package-layout) convention (`example/README.md`, `example/example.dart` or `example/lib/main.dart`). So published packages get a real, CI-tested `example/`; `examples/` (plural) is not the pub.dev convention. Non-published deliverables (cores, CLIs, TUIs, GUIs) skip it unless there's a genuine need — e.g., a core ships a small facade example so GUI implementers can see the seam wired. Otherwise: tests.
+- **`example/` is a package deliverable.** pub.dev builds its Example tab from an `example/` directory — singular, per the [package layout](https://dart.dev/tools/pub/package-layout) convention (`example/README.md`, `example/example.dart` or `example/lib/main.dart`). So published packages get a real, gate-tested `example/`; `examples/` (plural) is not the pub.dev convention. Non-published deliverables (cores, CLIs, TUIs, GUIs) skip it unless there's a genuine need — e.g., a core ships a small facade example so GUI implementers can see the seam wired. Otherwise: tests.
 - **Example code does not go in READMEs or prose documentation**, with the very smallest exceptions (a one-line command, a filename). The doctrine docs themselves may carry small illustrative snippets — tight, not piles — but anything that must compile and stay true is a test or `example/`. What a README carries at all is its own contract: §1.6.
 
-See `example/` (`bible_samples`) for the CI-tested reference.
+See `example/` (`bible_samples`) for the gate-tested reference.
 
 ### 2.8 Enforcement: lint vs. review
 
@@ -183,7 +185,8 @@ Not every rule in this bible can be automated. Know which is which:
 - `implementation_imports` — cross-package `package:thing/src/...` imports fail. Already on by default via `package:lints/recommended`.
 
 **Test-enforced (self-enforcing — `dart test` is the gate):**
-- Package-boundary direction + cycle-freedom — a `dart_arch_test` `test()` (§2.9) asserts inward direction over the **resolved import graph** (package-aware; the glob DSL is package-name-blind) and workspace-wide cycle-freedom. Expressed as a test so CI already runs it; no separate gate to remember.
+- Package-boundary direction + cycle-freedom — a `dart_arch_test` `test()` (§2.9) asserts inward direction over the **resolved import graph** (package-aware; the glob DSL is package-name-blind) and workspace-wide cycle-freedom. Expressed as a test so `dart test` already runs it; no separate gate to remember.
+- No hosted CI — a `test()` asserts `.github/workflows/` carries no workflow file: the pipeline is melos scripts (§2.10), never a GitHub Actions job. Adding one fails the build instead of silently forking the gate.
 - README claims — a README that names paths, links, melos scripts or the package name is checkable (§1.6). A small gate reads the README as data and resolves each claim: the referenced files exist, the `melos run <task>` names are in the `melos:` block, the title's package is the `name:` in `pubspec.yaml`. The artifact is the README; the authority is the filesystem, the `melos:` block and the pubspec. This is the only automated defence against README rot, and it is a short test.
 
 **Review-enforced (no automated check exists — don't invent one):**
@@ -278,5 +281,17 @@ Notes (verified against a two-package pub workspace):
 - `shouldBeFreeOfCycles(allFiles(), graph)` is the cycle gate; it is workspace-wide and reliable.
 - It is **self-enforcing by construction**: a real test, no config files, no codegen — CI already runs it with `dart test`.
 - Keep fine-grained structural conventions (naming, `///` docs, sealed/base, param shape) in the **analyze lint gate** — do **not** re-encode them as a second arch-test layer (D.R.Y., §1). The arch test owns *direction*; lints own *shape*.
+
+### 2.10 CI/CD is the melos scripts — never GitHub Actions
+
+**No hosted CI service. This is a hard rule.** GitHub is our **source host and pull-request review surface, nothing more** — it does not build, test, gate, or release our code, and a repo ships no `.github/workflows/` job that does. A hosted runner's green check is not our build; a script we run ourselves is. (Throughout this bible, "CI" means *this* pipeline — the gate we run — never a hosted service.)
+
+The pipeline **is** the `melos:` script contract (§2.1). `melos run verify` (gen → format → analyze → test) is the gate; `melos version` / `melos publish` are the release. Whoever runs it — a human at the keyboard, an agent session, or the estate's own runner — runs the *same* scripts, so there is exactly one definition of "the build" and no hosted second copy to drift from.
+
+**Recommended execution engine: Dagger.** Wrap the melos scripts in a Dagger pipeline — a `dagger.json` module whose functions mount the package and run `melos run verify` inside its container — and the gate is byte-for-byte reproducible on any box: local, agent, or estate runner. Dagger is a **recommendation, not a requirement**; the requirement is that the pipeline is melos scripts invoked *outside* a hosted CI service. Until a Dagger module exists, `melos run verify` run locally is the whole gate.
+
+Two consequences, stated plainly:
+- **No CI YAML, and no `on: push`.** There is no trigger to reason about and no step that runs only "in CI" — a step nobody runs locally is a step nobody can trust. Anything that must happen on a change is a melos script, invoked by whatever lands the change.
+- **The rule is self-enforcing.** A test asserts `.github/workflows/` carries no workflow file (§2.8): the pipeline cannot fork into a hosted job by accident, because the same `dart test` that would have run it instead fails on it.
 
 ---

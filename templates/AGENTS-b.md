@@ -18,7 +18,7 @@ This file sits in the **core** repo. The UI repo gets its own AGENTS.md
 
 `<thing_core>` — **pure Dart, no Flutter anywhere.** Headless-buildable; drift
 (NativeDatabase) and sembast run on the Dart VM, so adapters + the contract
-suite live and run in core CI with no device.
+suite live and run in the core's gate with no device.
 - `<thing_core>/` root `pubspec.yaml` (`workspace:` + `melos:`; **no melos.yaml**)
   - `packages/`
     - `<thing>_domain/` — entities, value objects, repository & datasource **contracts**, failures
@@ -55,7 +55,7 @@ Doctrine: bible §1.5. The adapter translates; business code never guesses.
 
 ## Housekeeping
 
-- CI entry point: `melos run <task>` from the core workspace root.
+- Gate entry point: `melos run <task>` from the core workspace root (no GitHub Actions — bible §2.10).
 - Clean before committing: `dart analyze --fatal-infos --fatal-warnings` (**zero
   diagnostics of any severity**), `dart test` (includes the `dart_arch_test` boundary test).
 - Error style is the bible default: `Future<Either<F, T>>`. If this repo deviates, **say so here**.

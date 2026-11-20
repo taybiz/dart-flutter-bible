@@ -44,7 +44,7 @@ Doctrine: bible §1.5. The adapter translates; business code never guesses.
 
 ## Housekeeping
 
-- CI entry point: `melos run <task>` (`analyze`, `test`, …) from the workspace root.
+- Gate entry point: `melos run <task>` (`analyze`, `test`, …) from the workspace root (no GitHub Actions — bible §2.10).
 - Clean before committing: `dart analyze --fatal-infos --fatal-warnings` (**zero
   diagnostics of any severity**), `dart test` (includes the `dart_arch_test` boundary test).
 - Error style is the bible default: `Future<Either<F, T>>`. If this repo deviates, **say so here**.

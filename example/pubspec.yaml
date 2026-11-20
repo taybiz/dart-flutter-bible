@@ -17,8 +17,8 @@ dev_dependencies:
   melos: ^8.8.0
 
 # Single-package melos workspace (Topology C): this package IS the root, so
-# the scripts contract lives here. CI calls `dart run melos run ...`, keeping
-# local and CI identical (see §2.1).
+# the scripts contract lives here. The gate calls `dart run melos run ...` —
+# no GitHub Actions; CI/CD is these scripts (§2.1, §2.10).
 melos:
   useRootAsPackage: true
   scripts:

@@ -2,8 +2,8 @@
 # Regenerate the GitHub wiki from docs/ and push.
 #
 # Local:  scripts/sync-wiki.sh [wiki-clone-dir]   (default: /tmp/dart-flutter-bible.wiki)
-# CI:     GITHUB_TOKEN + GITHUB_REPOSITORY env vars are picked up automatically
-#         (used by .github/workflows/wiki-sync.yml).
+# Runner: GITHUB_TOKEN + GITHUB_REPOSITORY env vars are picked up automatically
+#         (run by the estate runner — no GitHub Actions; bible §2.10).
 set -euo pipefail
 
 REPO="${GITHUB_REPOSITORY:-staylorx/dart-flutter-bible}"
@@ -31,10 +31,10 @@ cd "$WIKI_DIR"
 git checkout master 2>/dev/null || git checkout -b master
 git pull --ff-only origin master 2>/dev/null || true
 
-# git identity — CI runners have none; local uses the user's configured identity
+# git identity — automated runners have none; local uses the user's configured identity
 if ! git config user.name >/dev/null 2>&1; then
-  git config user.name "github-actions[bot]"
-  git config user.email "github-actions[bot]@users.noreply.github.com"
+  git config user.name "wiki-sync"
+  git config user.email "wiki-sync@localhost"
 fi
 
 # docs file -> wiki page name
