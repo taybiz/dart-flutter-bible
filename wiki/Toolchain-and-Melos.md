@@ -292,7 +292,7 @@ The pipeline **is** the `melos:` script contract (§2.1). `melos run verify` (ge
 
 Three consequences, stated plainly:
 - **No CI YAML, and no `on: push`.** There is no trigger to reason about and no step that runs only "in CI" — a step nobody runs locally is a step nobody can trust. Anything that must happen on a change is a melos script, invoked by whatever lands the change.
-- **Publishing is ours too.** Nothing ships from a hosted action — not an artifact, a docs site, or a wiki. Generated output is shipped **as code**: it is rendered by a script into the repo, committed, and gated for freshness. This repo renders the wiki into `wiki/` (`scripts/sync-wiki.sh --render wiki`); publishing copies that tree and pushes it.
+- **Publishing is ours too — and it rides the ship flow.** Nothing ships from a hosted action — not an artifact, a docs site, or a wiki. Generated output is shipped **as code**: it is rendered by a script into the repo, committed, and gated for freshness. This repo renders the wiki into `wiki/` (`scripts/sync-wiki.sh --render wiki`); publishing copies that tree and pushes it. The publish is a step of the get-and-ship flow — whoever gets the change and ships it runs the publish then — **never a scheduled or cron publisher**.
 - **The rule is self-enforcing.** A test asserts `.github/workflows/` carries no workflow file (§2.8): the pipeline cannot fork into a hosted job by accident, because the same `dart test` that would have run it instead fails on it.
 
 ---
