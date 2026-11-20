@@ -43,7 +43,7 @@ ui/ (thing_flutter — separate repo)
 
 Rules for Topology B:
 
-- The core repo is **pure Dart**: no Flutter imports anywhere. Drift (`NativeDatabase`) and sembast run headless on the Dart VM, so both adapters **and the contract test suite** live and run in core CI without a device.
+- The core repo is **pure Dart**: no Flutter imports anywhere. Drift (`NativeDatabase`) and sembast run headless on the Dart VM, so both adapters **and the contract test suite** live and run in the core's gate without a device.
 - The UI repo depends on the core via a **git dependency** (branch/tag); during cross-repo dev, `dependency_overrides` point at a local core checkout. Publishing the core to pub.dev is optional, only when outside teams consume it.
 - Platform-specific concerns (`path_provider` paths, `sqlite3_flutter_libs`) are resolved in the UI repo's composition root and injected into adapters — never imported by core packages.
 - Contract tests never live in the UI repo; they are core's job. The UI repo only tests its boundary (providers, widgets).
@@ -51,7 +51,7 @@ Rules for Topology B:
 
 ### 3.3 Topology C — single-package repo (one library, one package, one delivery)
 
-A repo that genuinely holds **one** package — a published package, or a pure-Dart library with a single delivery mechanism — is **still a melos workspace**. The package *is* the workspace root, so the config lives in its own `pubspec.yaml` and melos is a dev dependency. What that buys is the tool belt around the code: one place for the scripts CI calls, `melos run`, and the release flow (`melos version` for the changelog and tag, `melos publish`). A single-package repo keeps melos rather than dropping it to save a file.
+A repo that genuinely holds **one** package — a published package, or a pure-Dart library with a single delivery mechanism — is **still a melos workspace**. The package *is* the workspace root, so the config lives in its own `pubspec.yaml` and melos is a dev dependency. What that buys is the tool belt around the code: one place for the scripts the gate calls, `melos run`, and the release flow (`melos version` for the changelog and tag, `melos publish`). A single-package repo keeps melos rather than dropping it to save a file.
 
 ```yaml
 name: thing_package              # the package IS the workspace root
@@ -71,7 +71,7 @@ Rules for Topology C:
 - **`melos.yaml` is still a leftover** (§2 Toolchain) — the `melos:` key in the pubspec is the configuration, and this topology has no `workspace:` list and no `resolution: workspace` anywhere.
 - The root package keeps its publishable metadata (`version`, `repository`, `topics`, …). Being a workspace root changes nothing about what ships to pub.dev.
 - `melos bootstrap` writes `melos_<package>.iml` into the root, so `*.iml` belongs in `.gitignore` or it rides into the published archive.
-- CI calls the scripts (`dart run melos run analyze`), never the raw commands, so a script that rots fails the build instead of quietly passing.
+- The gate calls the scripts (`dart run melos run analyze`), never the raw commands, so a script that rots fails the build instead of quietly passing.
 - The release is a plain `vX.Y.Z` tag — package-prefixed tags are for workspace members.
 
 ### 3.4 The application layer is the facade

@@ -16,7 +16,7 @@ restated (bible §1.3 D.R.Y.).
 
 `<thing_package>/` — a single package that **is** the workspace root. No
 `workspace:` list, no `melos.yaml`; the `melos:` key lives in this `pubspec.yaml`.
-That buys the tool belt: `melos run <task>` (one CI entry point) plus the release
+That buys the tool belt: `melos run <task>` (one gate entry point) plus the release
 flow (`melos version` → the changelog + tag, `melos publish`).
 
 ```yaml
@@ -60,7 +60,7 @@ Doctrine: bible §1.5. The adapter translates; business code never guesses.
 
 ## Housekeeping
 
-- CI entry point: `dart run melos run <task>` (CI calls the script contract, never raw commands).
+- Gate entry point: `dart run melos run <task>` (the gate calls the script contract, never raw commands; no GitHub Actions — bible §2.10).
 - Clean before committing: `dart analyze --fatal-infos --fatal-warnings` (**zero
   diagnostics of any severity**), `dart test`.
 - Error style is the bible default: `Future<Either<F, T>>`. If this repo deviates, **say so here**.

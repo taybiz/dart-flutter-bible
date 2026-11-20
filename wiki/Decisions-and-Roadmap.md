@@ -1,0 +1,47 @@
+# 11. Decisions — Change Record
+
+Doctrine lives in §1–§10 — that is the single source of truth. This section only records *that* a decision was settled, *where* it is written down, and *why*. It is deliberately not a parallel doctrine index; if a section changes, the doctrine wins and this table points at the new reality.
+
+### 11.1 Settled
+
+| Decision | Documented in | Why |
+|---|---|---|
+| Structured state management — Riverpod plain providers as the house default, Bloc/Cubit equally valid, one approach per app | §8 Flutter Ring | Doctrine asks for structure and the use-case seam, not a brand; state stays codegen-free and out of the core |
+| Dependencies wired at the composition root — constructor injection by default, a service locator (`get_it`) allowed there for a project that has one, `injectable` codegen out (§7) | §8 Flutter Ring | Structure is explicit wiring in one place; core takes dependencies through constructors, no widget resolves its own |
+| go_router for navigation | §8 Flutter Ring | Boring, one file, works |
+| drift for sqlite3 (only sanctioned builder) | §5 Persistence, §7 Builders | Typed ORM; testable with `NativeDatabase.memory()` |
+| shouldly + mocktail, Given/When/Then names | §6 Testing | "should be" idiom; mocks only at the use-case seam |
+| fpdart ^1.2.0 pinned everywhere | §4 Functional Core | Failure is a value; 2.0-dev is a pre-release Effect rewrite |
+| `crypto` allowed in `thing_domain` — narrow content-hash carve-out | §3 Topology | A stable, byte-identical content digest needs a real hash; `equatable.hashCode` is a VM int, not run/platform-stable — pure-Dart SHA-256 ships only in `package:crypto`. Carve-out only; latest stable major, not pinned |
+| Terse `///` on declarations and members; never a file header (barrels only) | §2 Toolchain | dartdoc/pub.dev-ready; `public_member_api_docs` gates it; file-level `///` requires `library;` — that's for barrels |
+| Use-case `call()` takes discrete business params | §4 Functional Core | Signature is the documentation; no cargo objects |
+| Named params (sole exceptions: `ref`/`message`/`value`); Flutter follows Flutter | §2 Toolchain | Readable call sites; don't fight the framework |
+| One hand-written barrel per package | §2 Toolchain | `src/` is private; what's exported *is* the public API |
+| UnitOfWork | §5 Persistence | A function type (`Either`-aware); a **required** constructor dependency of every operation that steps more than once. Contracts stay transaction-free — no `uow` parameter; a store that cannot roll back is wired with `noOpUnitOfWork` at the composition root; the adapter publishes the open unit and routes every read through it |
+| fpdart termination | §4 Functional Core | Public seam **defaults** to `Future<Either<F,T>>` (`.run()` inside the layer); a package may present the unrun `TaskEither` when it declares the style (§4.9), which the consumer then runs; consumers never compose chains across a seam |
+| Error style is declared, never inferred | §4 Functional Core | Two styles live in the estate (FP-style tuples, plain exceptions); the consumer must be told which one they hold. Named in the barrel, the README, and — on any deviation — `AGENTS.md`. Silence is the problem, not the choice |
+| State-management packages are composition/presentation-ring only — never the domain ring | §8 Flutter Ring | Domain/usecases/datasources stay pure Dart: zero `flutter_riverpod`/`flutter_bloc`; the state layer wraps use cases in the UI ring only |
+| Code placement | §2 Toolchain | Tests first; `example/` (singular — pub.dev convention) for packages or genuine need (e.g., core facade for GUI); never READMEs/prose |
+| Lint-enforced vs review-enforced split | §2 Toolchain | Self-enforce what's automatable; taste rules stay in review |
+| D.R.Y. — single source of truth; project docs (README/AGENTS.md) reference doctrine, never restate it; repo docs hold separate jobs (the queue = terse, one unique actionable item each — `BACKLOG.md` or a Backlog.md board; CHANGELOG = keen decisions & why; AGENTS.md = operational keep-your-footing) | §1 Architecture, §10 Review | A second copy is a second truth; READMEs drift the moment doctrine changes; a backlog that reads like a diary is unreadable by automation |
+| Melos is **required** as the canonical script contract — `melos run` is the one entry point CI and agents call; it never enforces package boundaries (`dart_arch_test` does) | §2 Toolchain | One command, one behavior; per-package cwd/flags; codegen ordering; script-rot detection; release flow. Workspace orchestration over piles of unpublished packages still breaks — melos is a script runner, not an orchestrator. `melos analyze` floor is ^8.8.0 |
+| melos 8 (`^8.8.0`) and the `exec.command` script schema | §2 Toolchain | 7.0.0 deleted `melos.yaml`; 8.0.0 broke the per-package script shape and shipped with no `melos analyze` command (restored 8.1.0, tightened to `--fatal-infos` in 8.2.0) |
+| **No GitHub Actions** — CI/CD is the `melos:` script contract run by us (a human, an agent, or the estate runner); Dagger is the recommended container engine, never a requirement | §2 Toolchain (2.10), §9 Bootstrap (9.9), §10 Review (10.24) | A hosted runner is a second build definition we neither control nor can run locally, and a step that exists only "in CI" is a step nobody runs. The scripts hold the gate (`melos run verify`) and the release; GitHub stays source hosting + PR review only |
+| Single-package repos may still run melos | §3 Topology (C), §2 Toolchain | The package *is* the workspace root (`melos: useRootAsPackage: true`); keeping melos there buys `melos run` and the changelog/tag/publish flow |
+| A package that ships **no adapter** is outside the at-least-two-repository-adapter rule | §3 Topology (3.6) | The rule forces a contract to be the interface instead of one adapter's behaviour; where the deliverable *is* the contract and the adapter is the consumer's, there is no implementation of ours to vary. The contract suite and its shape are unchanged — what is waived is the second adapter we own — and a reference implementation may live in the repo while staying out of the published archive |
+| Failures across a package boundary: an `abstract base` root with the closed set a `sealed` sibling beside it, product families as siblings (never wrapped), one name per fact, a new leaf in a published set is MAJOR | §4 Functional Core (4.2) | Dart's `sealed` is library-scoped, so a sealed root hands a consumer's domain layer a closed set it does not own and charges a translation at every call *into* the package; an open root lets a product family extend it, while the set stays enumerable where a caller switches |
+| GUI testing gate: deterministic `integration_test` in CI; marionette_flutter (debug-only binding) + marionette_mcp as the dev-time agent layer, never the gate | §6 Testing, §8 Flutter Ring | An agent deciding what to tap is never a repeatable gate; `integration_test` is. Marionette stays GUI-ring-only and debug-only |
+| Ids and handles — business code qualifies the handle by its entity (`accountHandle`, `deckHandle`), adapters/DTOs/codecs may say `id`, stored keys keep their names, and the key↔handle map lives in the repo's `AGENTS.md` | §1 Architecture (1.5) | An id has three owners (the business handle, the wire's key, the store's column) and one value; one name for all three hides the seam where storage's vocabulary can leak into a signature. Naming each in its layer makes the translation explicit and reviewable |
+| READMEs orient and must be true — a closed list of what a README carries, no dictate about how to work, and a gate on the claims that can be resolved | §1 Architecture (1.6), §2 Toolchain (2.8), §9 Bootstrap (9.12), §10 Review (10.15b) | A README whose dictate disagrees with the code sows confusion with no way for a reader to tell which copy is wrong; newcomers and agents read it as authority. One home per fact (D.R.Y.) plus a freshness rule plus a gate turns README rot into a red build instead of a trust problem |
+| `--config` **replaces** the default config file — the two are alternatives, not layers; env vars still sit between them | §13 Config & Settings | A flag that names a file must not be silently amended by a file the user did not name, or the same command yields different settings on a box with a different default config — which is exactly what breaks reproducibility in CI. Keys the given file omits still fall through to env vars, then built-in defaults; the missing-`--config` hard error stays the one failure path |
+
+### 11.2 Proposals
+
+_None open. Propose in a PR; when settled, add a row to the table above and update the section it documents._
+
+### 11.3 Roadmap
+
+- **Team promotion:** this bible is destined for a team-facing git wiki. Vault doc stays canonical; the wiki is a published rendering.
+
+---
+[Home](Home) · [README](https://github.com/taybiz/dart-flutter-bible)

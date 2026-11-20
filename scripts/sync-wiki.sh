@@ -1,51 +1,37 @@
 #!/usr/bin/env bash
-# Regenerate the GitHub wiki from docs/ and push.
+# Render the GitHub wiki from docs/, and optionally publish it.
 #
-# Local:  scripts/sync-wiki.sh [wiki-clone-dir]   (default: /tmp/dart-flutter-bible.wiki)
-# CI:     GITHUB_TOKEN + GITHUB_REPOSITORY env vars are picked up automatically
-#         (used by .github/workflows/wiki-sync.yml).
+#   scripts/sync-wiki.sh --render [dir]   render docs/ -> dir (default: wiki/), no network
+#   scripts/sync-wiki.sh [clone-dir]      render into a wiki clone and push (publish)
+#
+# No GitHub Actions (bible §2.10). `--render wiki` produces the committed,
+# gate-checked pages under wiki/ — the wiki is shipped as code. Publishing copies
+# that same output into the wiki git repo and pushes it; a human, an agent, or
+# the estate runner does it.
+#
+# The doctrine docs are the authority; the page list below is derived from them
+# and gated by example/test/wiki_contract_test.dart (the three lists — README
+# link rewrite, copy_page, _Sidebar.md — must agree and cover every doc).
 set -euo pipefail
 
-REPO="${GITHUB_REPOSITORY:-staylorx/dart-flutter-bible}"
-WIKI_DIR="${1:-/tmp/dart-flutter-bible.wiki}"
+REPO="${GITHUB_REPOSITORY:-taybiz/dart-flutter-bible}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-if [ -n "${GITHUB_TOKEN:-}" ]; then
-  WIKI_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/${REPO}.wiki.git"
-else
-  WIKI_URL="git@github.com:${REPO}.wiki.git"
-fi
-
-# GitHub only materializes a wiki's git repo after the first page is saved
-# (open the repo's Wiki tab and save a placeholder page once).
-if ! git ls-remote "$WIKI_URL" >/dev/null 2>&1; then
-  echo "wiki not initialized yet — open the repo's Wiki tab and save a first page, then re-run."
-  exit 0
-fi
-
-if [ ! -d "$WIKI_DIR/.git" ]; then
-  git clone "$WIKI_URL" "$WIKI_DIR"
-fi
-cd "$WIKI_DIR"
-git checkout master 2>/dev/null || git checkout -b master
-git pull --ff-only origin master 2>/dev/null || true
-
-# git identity — CI runners have none; local uses the user's configured identity
-if ! git config user.name >/dev/null 2>&1; then
-  git config user.name "github-actions[bot]"
-  git config user.email "github-actions[bot]@users.noreply.github.com"
-fi
-
-# docs file -> wiki page name
+# docs file -> wiki page. Uses the global OUT_DIR set by render().
 copy_page() {
-  cp "$ROOT_DIR/docs/$1.md" "$2.md"
-  printf '\n---\n[Home](Home) · [README](https://github.com/%s)\n' "$REPO" >> "$2.md"
+  cp "$ROOT_DIR/docs/$1.md" "$OUT_DIR/$2.md"
+  printf '\n---\n[Home](Home) \u00b7 [README](https://github.com/%s)\n' "$REPO" >> "$OUT_DIR/$2.md"
 }
 
+# Deterministic docs/ -> wiki-page render. No network, no git.
+render() {
+  OUT_DIR="$1"
+  mkdir -p "$OUT_DIR"
+
 # Home comes from the repo README (intro + why + contents)
-cp "$ROOT_DIR/README.md" Home.md
-printf '\n---\n[Back to the repo](https://github.com/%s)\n' "$REPO" >> Home.md
+cp "$ROOT_DIR/README.md" "$OUT_DIR/Home.md"
+printf '\n---\n[Back to the repo](https://github.com/%s)\n' "$REPO" >> "$OUT_DIR/Home.md"
 
 # Rewrite repo-relative links to wiki links (GitHub wikis don't resolve docs/*.md paths)
 sed -i \
@@ -64,7 +50,7 @@ sed -i \
   -e 's|](docs/13-config-and-settings.md)|](Config-and-Settings)|g' \
   -e "s|](docs/00-compact.md)|](https://github.com/${REPO}/blob/main/docs/00-compact.md)|g" \
   -e "s|](LICENSE)|](https://github.com/${REPO}/blob/main/LICENSE)|g" \
-  Home.md
+  "$OUT_DIR/Home.md"
 
 copy_page 01-architecture         Architecture
 copy_page 02-toolchain            Toolchain-and-Melos
@@ -80,7 +66,7 @@ copy_page 11-decisions            Decisions-and-Roadmap
 copy_page 12-sources              Sources-of-Truth
 copy_page 13-config-and-settings  Config-and-Settings
 
-cat > _Sidebar.md <<'SIDEBAR'
+cat > "$OUT_DIR/_Sidebar.md" <<'SIDEBAR'
 **Dart/Flutter Bible**
 - [Home](Home)
 - [Architecture](Architecture)
@@ -97,6 +83,44 @@ cat > _Sidebar.md <<'SIDEBAR'
 - [Sources of Truth](Sources-of-Truth)
 - [Config & Settings](Config-and-Settings)
 SIDEBAR
+}
+
+if [ "${1:-}" = "--render" ]; then
+  render "${2:-$ROOT_DIR/wiki}"
+  echo "wiki: rendered to ${2:-$ROOT_DIR/wiki}"
+  exit 0
+fi
+
+# ---- publish: copy the rendered pages into the wiki git repo and push ----
+WIKI_DIR="${1:-/tmp/dart-flutter-bible.wiki}"
+
+if [ -n "${GITHUB_TOKEN:-}" ]; then
+  WIKI_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/${REPO}.wiki.git"
+else
+  WIKI_URL="git@github.com:${REPO}.wiki.git"
+fi
+
+# GitHub only materializes a wiki's git repo after the first page is saved
+# (open the repo's Wiki tab and save a placeholder page once).
+if ! git ls-remote "$WIKI_URL" >/dev/null 2>&1; then
+  echo "wiki not initialized yet \u2014 open the repo's Wiki tab and save a first page, then re-run."
+  exit 0
+fi
+
+if [ ! -d "$WIKI_DIR/.git" ]; then
+  git clone "$WIKI_URL" "$WIKI_DIR"
+fi
+cd "$WIKI_DIR"
+git checkout master 2>/dev/null || git checkout -b master
+git pull --ff-only origin master 2>/dev/null || true
+
+# git identity \u2014 automated runners have none; local uses the user's configured identity
+if ! git config user.name >/dev/null 2>&1; then
+  git config user.name "wiki-sync"
+  git config user.email "wiki-sync@localhost"
+fi
+
+render "$WIKI_DIR"
 
 git add -A
 if git diff --cached --quiet; then

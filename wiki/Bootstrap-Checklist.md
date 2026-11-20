@@ -1,0 +1,17 @@
+# 9. Bootstrap Checklist (new project)
+
+1. **9.1** — Read this bible first — it is short, and every step below assumes it.
+2. **9.2** — Scaffold the workspace: root `pubspec.yaml` with a `workspace:` list and a **`melos:` scripts block**; **no `melos.yaml`** (melos is required — §2.1).
+3. **9.3** — Create packages: `*_domain`, `*_usecases`, two `*_datasource_*` packages (one of which may be in-memory), and the app package.
+4. **9.4** — Set `resolution: workspace` in every package; `dart pub get`.
+5. **9.5** — Define the domain contracts first (entities, failures, `I*Repository`, datasource interfaces). Nothing else until these compile.
+6. **9.6** — Implement **at least two repository adapters** and the shared **contract test suite** from day one — or, for a package that ships **no adapter** (a pure library whose storage is the consumer's), the **contract suite** alone, and say so in `AGENTS.md` (§3.6).
+7. **9.7** — Wire `analysis_options.yaml` (lints, strict, **`public_member_api_docs`**, `todo: error`) at root; `dart analyze --fatal-infos --fatal-warnings` clean — **zero diagnostics of any severity** (errors, warnings, infos; §2.2).
+8. **9.8** — Write the first use case — terse `///` docs (≤2 lines), business-param `call()`, named params — plus its mocktail test (both Either sides).
+9. **9.9** — Commit. The gate is `melos run verify` — `dart analyze --fatal-infos --fatal-warnings` + `dart test` — run by a human, an agent, or the estate runner, **never a hosted service**: GitHub Actions is banned, so add no `.github/workflows/` job (§2.10).
+10. **9.10** — Add the **`dart_arch_test` boundary test** (§2.9) — package-aware assertions over the resolved import graph (direction) + cycle-freedom across the workspace. It is a plain `test()`, so the gate already runs it with everything else and the boundary is machine-checked before a cross-layer import can exist.
+11. **9.11** — Create the operating docs from the **templates** (`templates/` in the bible): copy `AGENTS-<topology>.md` → `AGENTS.md`, plus `CHANGELOG.md` and a queue (`BACKLOG.md` by default, or a Backlog.md `backlog/` board if the repo adopts one), fill in the placeholders, delete any empty "Deviations" stub. These are skeleton + references, never the doctrine restated (§1.3).
+12. **9.12** — Write the `README` from `templates/README-project.md` — the closed list only (§1.6): the name, one paragraph of what it is, how to run it using the real `melos run <task>` names from the script contract, where the docs live (bible + `AGENTS.md`), license. No rules, no architecture, no example code. Then add the **README gate** to the test suite: it resolves the README's links and paths, checks every script it names exists in the `melos:` block, and checks the package it titles itself with is the `name:` in `pubspec.yaml`. A README nobody checks is a README that goes stale quietly.
+
+---
+[Home](Home) · [README](https://github.com/taybiz/dart-flutter-bible)

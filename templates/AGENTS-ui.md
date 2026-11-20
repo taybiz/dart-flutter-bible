@@ -34,7 +34,7 @@ Use-case calls name the handle after its entity (`accountHandle`), never bare `h
 
 ## Housekeeping
 
-- GUI gate is the integration test in CI, not just widget tests: `flutter test integration_test/...`.
+- GUI gate is the integration test in the gate, not just widget tests: `flutter test integration_test/...`.
 - `MarionetteBinding` init is `kDebugMode` **only**; `marionette_mcp` is a dev tool,
   never a release app dependency.
 - Contract suites never live here — they are core's (bible §1.2).
