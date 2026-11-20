@@ -29,3 +29,7 @@ doc/api/
 .flutter-plugins-dependencies
 
 .hermes/
+
+# Python artifacts (Dagger module)
+__pycache__/
+*.pyc

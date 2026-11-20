@@ -28,7 +28,7 @@
 
 A rendered copy of these docs lives in the [project wiki](https://github.com/taybiz/dart-flutter-bible/wiki).
 
-The wiki is rendered from `docs/` by `scripts/sync-wiki.sh`, run by the estate runner (or locally: `bash scripts/sync-wiki.sh`) — there is no hosted GitHub Action; the pipeline is ours (bible §2.10).
+The wiki is generated from `docs/` and **shipped as code**: `scripts/sync-wiki.sh --render wiki` writes the pages into `wiki/`, which is committed and gate-checked for freshness. Publishing copies that tree into the GitHub wiki (`scripts/sync-wiki.sh`) — there is no hosted GitHub Action; the pipeline is ours (bible §2.10).
 
 ## License
 

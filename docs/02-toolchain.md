@@ -288,10 +288,11 @@ Notes (verified against a two-package pub workspace):
 
 The pipeline **is** the `melos:` script contract (§2.1). `melos run verify` (gen → format → analyze → test) is the gate; `melos version` / `melos publish` are the release. Whoever runs it — a human at the keyboard, an agent session, or the estate's own runner — runs the *same* scripts, so there is exactly one definition of "the build" and no hosted second copy to drift from.
 
-**Recommended execution engine: Dagger.** Wrap the melos scripts in a Dagger pipeline — a `dagger.json` module whose functions mount the package and run `melos run verify` inside its container — and the gate is byte-for-byte reproducible on any box: local, agent, or estate runner. Dagger is a **recommendation, not a requirement**; the requirement is that the pipeline is melos scripts invoked *outside* a hosted CI service. Until a Dagger module exists, `melos run verify` run locally is the whole gate.
+**Recommended execution engine: Dagger.** Wrap the melos scripts in a Dagger pipeline — this repo ships one at the root (`dagger.json`; `dagger call verify --source=.`), whose functions mount the package into a Dart container and run `melos run verify` — and the gate is byte-for-byte reproducible on any box with a container engine: local, agent, or estate runner. Dagger is a **recommendation, not a requirement**; the requirement is that the pipeline is melos scripts invoked *outside* a hosted CI service. Until a Dagger module exists, `melos run verify` run locally is the whole gate.
 
-Two consequences, stated plainly:
+Three consequences, stated plainly:
 - **No CI YAML, and no `on: push`.** There is no trigger to reason about and no step that runs only "in CI" — a step nobody runs locally is a step nobody can trust. Anything that must happen on a change is a melos script, invoked by whatever lands the change.
+- **Publishing is ours too.** Nothing ships from a hosted action — not an artifact, a docs site, or a wiki. Generated output is shipped **as code**: it is rendered by a script into the repo, committed, and gated for freshness. This repo renders the wiki into `wiki/` (`scripts/sync-wiki.sh --render wiki`); publishing copies that tree and pushes it.
 - **The rule is self-enforcing.** A test asserts `.github/workflows/` carries no workflow file (§2.8): the pipeline cannot fork into a hosted job by accident, because the same `dart test` that would have run it instead fails on it.
 
 ---
