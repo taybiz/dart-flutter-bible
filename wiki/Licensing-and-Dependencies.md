@@ -90,7 +90,21 @@ A barred (or weak-copyleft) dependency is never a quiet addition. It is a **docu
 
 The rule is enforced, not trusted. Every repo that ships a `pubspec.yaml` ships a **dependency-license test** in its suite: it walks the repo's pubspecs, asserts each declared dependency line carries an inline SPDX comment, asserts the identifier is in the repo's allow-set (the permissive list above, plus any recorded and reviewed exception), and requires a copyleft dependency's comment to warn loudly — `COPYLEFT` with one `!` for weak copyleft, three (`!!!`) for strong (§14.2.1). The reference implementation is `example/test/dependency_license_test.dart` in this repo — a repo adopts it by copying the test and labelling its own pubspec. `melos run verify` runs it with everything else.
 
-## 14.5 Scope
+## 14.5 Stating a licence — a closed-source repo says so
+
+All rights reserved is the default, but "by default" is an inference a reader should not have to draw. A repo that is **not** offered under an open-source licence states it, in a `LICENSE` file at the root, taken from `templates/LICENSE-proprietary.md`:
+
+> **Proprietary — All Rights Reserved**, plus an explicit *no reverse engineering, decompiling, or disassembling* clause — carrying the usual "except to the extent that such activity is expressly permitted by applicable law" carve-out, which is what keeps the clause a contract term rather than an overbroad one.
+
+Why state it instead of leaving the default implicit:
+
+- **The dependency label has an anchor.** A first-party package from such a repo is labelled `Proprietary` (§14.1) — and that is now a licence the repo *declares*, not a guess from an absent file.
+- **A contract hook exists.** Copyright alone does not cleanly bar reverse engineering: in the US, decompiling for interoperability is generally fair use, and in the EU the Software Directive grants a non-waivable interoperability decompilation right. An explicit term is what you rely on where it *is* enforceable — and stating it plainly costs nothing.
+- **Public is not open source.** Where a repo is publicly readable but proprietary, the file says so, and a reader gets the truth from the repo rather than a licence they assumed.
+
+Open-source repos do **not** carry this file — they ship their own real licence (MIT, Apache-2.0, …).
+
+## 14.6 Scope
 
 This is engineering policy, not legal advice. It applies to every repo in the estate, open or closed; the comment states the license and never replaces reading it, and a genuinely ambiguous, bespoke, or dual license goes to a human decision (§14.3) rather than a default.
 
