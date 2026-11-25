@@ -9,6 +9,7 @@
 | Analyzer | `dart analyze` — **zero diagnostics of any severity** (errors, warnings, infos) before any commit; gate = `dart analyze --fatal-infos --fatal-warnings` (§2 "Analyzer: zero tolerance") |
 | Docs | Terse `///` on declarations and their public members (1–2 lines, what+why) — **never as a file header** — dartdoc/pub.dev-ready |
 | Tests | `dart test` |
+| Dependencies | every declared dependency labelled inline with its SPDX license; permissive-only unless a recorded decision (§14) |
 
 ### 2.1 Melos: the canonical script contract (required)
 
