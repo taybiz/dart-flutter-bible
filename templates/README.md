@@ -14,6 +14,7 @@ restated (§1.3 D.R.Y.). Deviations and local wiring are the only things you fil
 | `BACKLOG.md` | any | Queue, not a diary: terse actionable entries, Open / Done. A repo that adopts a Backlog.md `backlog/` board drops this file — the board is the queue |
 | `CHANGELOG.md` | any | Keen decisions and the *why*, grouped by release |
 | `README-project.md` | any | The closed list only (bible §1.6): name, what it is, `melos run <task>` to start, where the docs live, license |
+| `LICENSE-proprietary.md` | a closed-source (or public-but-proprietary) repo | `Proprietary — All Rights Reserved` + an explicit no-reverse-engineering clause (bible §14.5). The `LICENSE` an unlicensed repo adopts instead of leaving the default implicit — never for an open-source repo |
 
 ## How to use
 
