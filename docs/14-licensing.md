@@ -1,11 +1,13 @@
 # 14. Licensing & Dependency Provenance
 
-We ship two kinds of software, and a dependency has to be safe under both.
+We ship two kinds of software, and a dependency has to be safe under both — but what we ship is **not licensed uniformly**, and nobody should read "ours" as "MIT".
 
 | Model | What we ship | What every dependency must be compatible with |
 |---|---|---|
-| **Open source** | MIT — `sku_catalog`, the public GitHub repos, this bible | An MIT distribution of the combined work: every dependency permissive enough that the whole thing can still be offered under MIT |
-| **Closed source** | Proprietary — the private GitHub and Gitea repos | A proprietary binary we distribute (and, for a service, run): no dependency may impose a copyleft obligation on our code |
+| **Public** | repos on public GitHub — but *public* is not the same as *licensed*: some declare MIT (`sku_catalog`), one is Apache-2.0 (`resumesux_application`), and others carry **no `LICENSE` at all** (all rights reserved: readable, not reusable) | the license that repo **actually declares** — or, where it declares none, an all-rights-reserved distribution. Permissive-only either way: a copyleft obligation would attach to code we never offered anyone a licence to |
+| **Private / closed** | proprietary code on private GitHub and Gitea | a proprietary binary we distribute (and, for a service, run): no dependency may impose a copyleft obligation on our code |
+
+**There is no house-wide license.** This bible is MIT — that is *this repo's* licence, not a default we hand every project, and a public repo is not thereby open source. Read each repo's `LICENSE` (or its absence) before assuming anything. A first-party package used as a dependency is labelled by the licence its own repo declares, or `Proprietary` when it declares none.
 
 A third-party license is therefore a fact about *our* product, not a detail of the dependency's own business — so it belongs at the point of use, where the person adding the dependency is looking.
 
@@ -56,7 +58,7 @@ Verify first, label second: read the dependency's `LICENSE` (or pub.dev's licens
 
 | License | Why |
 |---|---|
-| `GPL-2.0-*`, `GPL-3.0-*` | A binary that links GPL becomes GPL — a closed-source product cannot ship it. An MIT open-source product cannot relicense the combined work under MIT either. Barred from **both** models, for two different reasons |
+| `GPL-2.0-*`, `GPL-3.0-*` | A binary that links GPL becomes GPL — a closed-source product cannot ship it. A permissively-licensed product cannot relicense the combined work under its own licence either. Barred from **both** models, for two different reasons |
 | `LGPL-2.1-*`, `LGPL-3.0-*` | Copyleft with a relinkability obligation our pure-Dart AOT build does not satisfy |
 | `AGPL-3.0-*` | Barred **everywhere, including a network-only service**: the obligation triggers on use over a network, not on distribution |
 
