@@ -22,6 +22,7 @@
 | [11 — Decisions & Roadmap](Decisions-and-Roadmap) | Settled doctrine (state management, DI, navigation) + roadmap |
 | [12 — Sources of Truth](Sources-of-Truth) | Canonical packages and docs |
 | [13 — Config & Settings](Config-and-Settings) | CLI/TUI config precedence, env, defaults |
+| [14 — Licensing & Dependencies](Licensing-and-Dependencies) | The inline dependency-license rule, the permissive allow-list, copyleft/unknown barred |
 | [Repo-doc templates](templates/README.md) | Copyable AGENTS/queue/CHANGELOG/README scaffolds per topology |
 
 ## Wiki

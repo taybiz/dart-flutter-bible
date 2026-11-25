@@ -26,6 +26,7 @@
 - [ ] **10.22** State management structured and singular (§8.2): one approach per app; app state in an explicit state layer (provider/cubit/notifier), not widget-local `setState`; no business logic in the state holder; zero state-package imports (`flutter_riverpod`, `flutter_bloc`, …) in the domain ring (domain/usecases/datasources); dependencies resolved at the composition root only?
 - [ ] **10.23** A package that publishes **no adapter** says so in its `AGENTS.md`, still ships a contract suite that takes *any* implementation, and keeps any reference implementation out of the published archive (§3.6)?
 - [ ] **10.24** No `.github/workflows/` job anywhere — GitHub Actions (or any hosted CI service) is **banned** (§2.10)? The build, gate and release are the `melos:` script contract (`melos run verify`; `melos version`/`melos publish`), run by a human, an agent, or the estate runner — Dagger is the recommended container engine, never a hosted runner?
+- [ ] **10.25** Every dependency in every `pubspec.yaml` labelled inline with its SPDX license (`fpdart: ^1.2.0  # MIT`), no exceptions (§14.1)? Only permissive licenses in the tree — any strong-copyleft (`GPL-*`/`LGPL-*`/`AGPL-*`), weak-copyleft (`MPL-2.0`), source-available, or unknown/unlicensed dependency is a recorded `AGENTS.md` deviation with the gate widened deliberately, and carries the LOUD warning (`!` weak, `!!!` strong; §14.2.1)? The dependency-license gate is present and green (§14.4)?
 
 ---
 [Home](Home) · [README](https://github.com/taybiz/dart-flutter-bible)

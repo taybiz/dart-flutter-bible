@@ -13,3 +13,4 @@
 - [Decisions & Roadmap](Decisions-and-Roadmap)
 - [Sources of Truth](Sources-of-Truth)
 - [Config & Settings](Config-and-Settings)
+- [Licensing & Dependencies](Licensing-and-Dependencies)
