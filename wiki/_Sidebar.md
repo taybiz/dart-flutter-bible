@@ -14,3 +14,4 @@
 - [Sources of Truth](Sources-of-Truth)
 - [Config & Settings](Config-and-Settings)
 - [Licensing & Dependencies](Licensing-and-Dependencies)
+- [Hardware & Platform](Hardware-and-Platform)

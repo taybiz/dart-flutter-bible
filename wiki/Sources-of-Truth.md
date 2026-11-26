@@ -11,6 +11,9 @@
 - [fpdart](https://pub.dev/packages/fpdart) — ^1.2.0 stable; v2-dev off-limits.
 - [shouldly](https://pub.dev/packages/shouldly) — the "should be" idiom.
 - [mocktail](https://pub.dev/packages/mocktail), [equatable](https://pub.dev/packages/equatable) (latest stable major — `3.x` today; not pinned), [sembast](https://pub.dev/packages/sembast).
+- [defaultTargetPlatform](https://api.flutter.dev/flutter/foundation/defaultTargetPlatform.html) — the platform input an adaptive UI reads (§15.1); defined on web, desktop, and in tests.
+- [Nordic UART Service (NUS)](https://docs.nordicsemi.com/bundle/ncs-latest/page/nrf/libraries/bluetooth/services/nus.html) — the standard BLE serial bridge (write to RX `…0002…`, receive on TX `…0003…`); what a BLE UART adapter speaks (§15.4).
+- [Web Serial API](https://developer.chrome.com/docs/capabilities/serial) — Chromium-desktop serial access for the web target (§15.3).
 
 ---
 [Home](Home) · [README](https://github.com/taybiz/dart-flutter-bible)
