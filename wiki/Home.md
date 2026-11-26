@@ -23,6 +23,7 @@
 | [12 — Sources of Truth](Sources-of-Truth) | Canonical packages and docs |
 | [13 — Config & Settings](Config-and-Settings) | CLI/TUI config precedence, env, defaults |
 | [14 — Licensing & Dependencies](Licensing-and-Dependencies) | The inline dependency-license rule, the permissive allow-list, copyleft/unknown barred |
+| [15 — Hardware & Platform](Hardware-and-Platform) | Cupertino on Apple / Material elsewhere, hardware as an adapter, serial + the mandatory BLE UART path, permissions |
 | [Repo-doc templates](templates/README.md) | Copyable AGENTS/queue/CHANGELOG/README scaffolds per topology |
 
 ## Wiki

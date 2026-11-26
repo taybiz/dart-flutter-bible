@@ -5,7 +5,7 @@ This is the **Dart/Flutter Bible**: a standards repo (doctrine docs + gate-teste
 ## Reading order
 
 - **Read `docs/00-compact.md` first** — the token-cheap bot-ingest blob. It is **bot-only: do not hand-edit it**.
-- Human docs `docs/01-architecture.md` … `docs/14-licensing.md` are authoritative. Load the full section only when its detail matters.
+- Human docs `docs/01-architecture.md` … `docs/15-hardware.md` are authoritative. Load the full section only when its detail matters.
 - If you edit any human doc, **regenerate `docs/00-compact.md`** afterwards (prompt: "regenerate docs/00-compact.md from the other docs/ files").
 
 ## Code lives in tests first, `example/` only for packages

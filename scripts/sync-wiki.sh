@@ -49,6 +49,7 @@ sed -i \
   -e 's|](docs/12-sources.md)|](Sources-of-Truth)|g' \
   -e 's|](docs/13-config-and-settings.md)|](Config-and-Settings)|g' \
   -e 's|](docs/14-licensing.md)|](Licensing-and-Dependencies)|g' \
+  -e 's|](docs/15-hardware.md)|](Hardware-and-Platform)|g' \
   -e "s|](docs/00-compact.md)|](https://github.com/${REPO}/blob/main/docs/00-compact.md)|g" \
   -e "s|](LICENSE)|](https://github.com/${REPO}/blob/main/LICENSE)|g" \
   "$OUT_DIR/Home.md"
@@ -67,6 +68,7 @@ copy_page 11-decisions            Decisions-and-Roadmap
 copy_page 12-sources              Sources-of-Truth
 copy_page 13-config-and-settings  Config-and-Settings
 copy_page 14-licensing            Licensing-and-Dependencies
+copy_page 15-hardware             Hardware-and-Platform
 
 cat > "$OUT_DIR/_Sidebar.md" <<'SIDEBAR'
 **Dart/Flutter Bible**
@@ -85,6 +87,7 @@ cat > "$OUT_DIR/_Sidebar.md" <<'SIDEBAR'
 - [Sources of Truth](Sources-of-Truth)
 - [Config & Settings](Config-and-Settings)
 - [Licensing & Dependencies](Licensing-and-Dependencies)
+- [Hardware & Platform](Hardware-and-Platform)
 SIDEBAR
 }
 
